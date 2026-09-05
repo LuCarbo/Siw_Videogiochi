@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${videogioco != null ? videogioco.titolo + ' - Game Vault' : 'Dettaglio Gioco'}">Dettaglio Gioco</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container" style="max-width: 1000px; padding: 2rem;">
+
+        <div th:if="${videogioco == null}" style="text-align: center; margin-top: 3rem; color: var(--text-muted);">
+            <h2>Gioco non trovato nel catalogo.</h2>
+            <a th:href="@{/videogiochi}" class="btn btn-primary" style="margin-top: 1rem;">Torna al Catalogo</a>
+        </div>
+
+        <div th:if="${videogioco != null}" class="game-details"
+            style="display: grid; grid-template-columns: 1fr 2fr; gap: 3rem;">
+
+            <!-- Immagine e Bottoni Azione -->
+            <div class="game-details-img" style="display: flex; flex-direction: column; gap: 1rem;">
+                <img th:src="${videogioco.urlCopertina != null ? videogioco.urlCopertina : 'https://via.placeholder.com/600x400?text=Nessuna+Copertina'}"
+                    alt="Cover" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+
+                <!-- Form per rimuovere il gioco dalla libreria (se presente) -->
+                <form th:if="${inLibreria}" th:action="@{/libreria/rimuovi}" method="post" style="margin: 0; display: flex;">
+                    <input type="hidden" name="videogiocoId" th:value="${videogioco.id}" />
+                    <button type="submit" class="btn"
+                        style="flex: 1; text-align: center; background: rgba(239, 68, 68, 0.8); border: 1px solid rgba(239, 68, 68, 0.4); color: white; cursor: pointer; border-radius: 8px; padding: 0.75rem 1.5rem; font-weight: 600; transition: all 0.2s ease;">
+                        Rimuovi dalla libreria
+                    </button>
+                </form>
+
+                <!-- Bottone per eliminazione gioco riservato all'ADMIN -->
+                <div sec:authorize="hasRole('ADMIN')" style="margin-top: 0.5rem;">
+                    <form th:action="@{/admin/videogioco/elimina/{id}(id=${videogioco.id})}" method="post" 
+                          onsubmit="return confirm('Sei sicuro di voler eliminare questo gioco e tutte le sue recensioni dal database?');" 
+                          style="margin: 0;">
+                        <button type="submit" class="btn" 
+                                style="width: 100%; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                            🛡️ Elimina Gioco dal DB (Admin)
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Colonna Destra: Dettagli -->
+            <div class="game-details-content">
+                <h1 th:text="${videogioco.titolo}"
+                    style="font-size: 2.8rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #fff, #a0a0a0); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    Titolo Gioco</h1>
+
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem; color: var(--text-muted); font-size: 1.1rem; align-items: center;">
+                    <span th:text="${videogioco.annoUscita != null ? videogioco.annoUscita : 'Anno sconosciuto'}">2023</span>
+                </div>
+
+                <div style="margin-bottom: 2rem; line-height: 1.6; color: rgba(255,255,255,0.8);">
+                    <h3>Descrizione</h3>
+                    <p th:text="${videogioco.descrizione != null ? videogioco.descrizione : 'Nessuna descrizione disponibile.'}"
+                        style="margin-top: 0.5rem;">Descrizione del gioco...</p>
+                </div>
+
+                <!-- SEZIONE RECENSIONE (Mostrata solo se il gioco è nella libreria) -->
+                <div th:if="${inLibreria}"
+                    style="margin-top: 3rem; background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="margin-bottom: 1rem; color: #fff;">La tua recensione</h3>
+
+                    <!-- VISUALIZZAZIONE DELLA RECENSIONE (Se esiste già un voto e non ci sono errori attivi) -->
+                    <div th:if="${recensione?.voto != null and haErroriValidazione != true}" id="recensione-testo">
+                        <div style="margin-bottom: 1.5rem;">
+                            <span style="font-size: 1.5rem; font-weight: bold; color: #c471ed;"
+                                th:text="${recensione.voto} + '/10'"></span>
+                            <p style="margin-top: 0.5rem; color: rgba(255,255,255,0.8); line-height: 1.5; font-style: italic;"
+                                th:text="${recensione.testo}"></p>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="button"
+                                onclick="document.getElementById('form-recensione').style.display = 'flex'; document.getElementById('recensione-testo').style.display = 'none';"
+                                style="background: transparent; color: #a0a0a0; border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                Modifica
+                            </button>
+
+                            <form th:action="@{/libreria/recensione/rimuovi}" method="post" style="margin: 0;">
+                                <input type="hidden" name="videogiocoId" th:value="${videogioco.id}" />
+                                <button type="submit"
+                                    style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                                    Elimina
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- FORM DI INSERIMENTO O MODIFICA CON BEAN VALIDATION -->
+                    <form id="form-recensione" th:action="@{/libreria/recensisci}" th:object="${commentoForm}" method="post"
+                        th:style="${(recensione?.voto != null and haErroriValidazione != true)} ? 'display: none; flex-direction: column; gap: 1rem;' : 'display: flex; flex-direction: column; gap: 1rem;'">
+
+                        <input type="hidden" th:field="*{videogiocoId}" />
+
+                        <div>
+                            <label for="voto" style="display: block; margin-bottom: 0.5rem; color: #a0a0a0;">Voto (1-10):</label>
+                            <input type="number" id="voto" th:field="*{voto}" min="1" max="10"
+                                style="width: 100px; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-size: 1rem;" />
+                            <div th:if="${#fields.hasErrors('voto')}" th:errors="*{voto}" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.35rem;"></div>
+                        </div>
+
+                        <div>
+                            <label for="testo" style="display: block; margin-bottom: 0.5rem; color: #a0a0a0;">Commento:</label>
+                            <textarea id="testo" th:field="*{testo}" rows="4"
+                                style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-size: 1rem; resize: vertical; box-sizing: border-box;"></textarea>
+                            <div th:if="${#fields.hasErrors('testo')}" th:errors="*{testo}" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.35rem;"></div>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                            <button type="submit"
+                                style="background: linear-gradient(135deg, #8e2de2, #4a00e0); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">
+                                Salva Recensione
+                            </button>
+
+                            <button type="button" th:if="${recensione?.voto != null}"
+                                onclick="document.getElementById('form-recensione').style.display = 'none'; document.getElementById('recensione-testo').style.display = 'block';"
+                                style="background: transparent; color: #a0a0a0; border: 1px solid rgba(255,255,255,0.2); padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer;">
+                                Annulla
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <!-- FINE SEZIONE RECENSIONE -->
+
+                <!-- ALTRE RECENSIONI DELLA COMMUNITY -->
+                <div th:if="${altreRecensioni != null and !altreRecensioni.isEmpty()}"
+                    style="margin-top: 3rem; background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="margin-bottom: 1.5rem; color: #fff;">Recensioni della Community</h3>
+
+                    <div th:each="comm : ${altreRecensioni}"
+                        style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <a th:if="${comm.autore != null}" th:href="@{/utente/{id}(id=${comm.autore.id})}" 
+                                   style="font-weight: bold; color: #fff; text-decoration: none;" th:text="${comm.autore.username}">Username</a>
+                                <span th:if="${comm.autore == null}" style="font-weight: bold; color: #a0a0a0;">Anonimo</span>
+                                <span style="font-size: 1.2rem; font-weight: bold; color: #c471ed;"
+                                    th:text="${comm.voto} + '/10'"></span>
+                            </div>
+                            <!-- Controllo RBAC per Moderazione Amministratore -->
+                            <div sec:authorize="hasRole('ADMIN')">
+                                <form th:action="@{/admin/commento/rimuovi/{id}(id=${comm.id})}" method="post" 
+                                      onsubmit="return confirm('Confermi la cancellazione di questo commento?');" style="margin: 0;">
+                                    <input type="hidden" name="videogiocoId" th:value="${videogioco.id}" />
+                                    <button type="submit" 
+                                            style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">
+                                        🛡️ Modera (Elimina)
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <p style="color: rgba(255,255,255,0.8); line-height: 1.5; font-style: italic;"
+                            th:text="${comm.testo}"></p>
+                        <small style="color: #a0a0a0;" th:text="${comm.dataScrittura}"></small>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

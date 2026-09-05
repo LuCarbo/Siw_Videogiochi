@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La tua Libreria - Siw Videogiochi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container">
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <h1 class="page-title">La Tua Libreria</h1>
+                <p style="color: var(--text-muted);">Tutti i giochi salvati nel tuo database locale.</p>
+            </div>
+        </div>
+
+        <div class="games-grid">
+            <a th:each="gioco : ${videogiochi}" th:href="@{/videogioco/{id}(id=${gioco.id})}" class="game-card">
+                <div class="card-img-container">
+                    <img th:src="${gioco.urlCopertina != null ? gioco.urlCopertina : 'https://via.placeholder.com/600x400?text=Nessuna+Copertina'}"
+                        alt="Cover del gioco" class="card-img">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title" th:text="${gioco.titolo}">Nome Gioco</h3>
+                    <div class="card-meta">
+                        <span th:text="${gioco.annoUscita != null ? gioco.annoUscita : 'Anno sconosciuto'}">2023</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div th:if="${videogiochi == null or videogiochi.empty}"
+            style="text-align: center; margin-top: 3rem; color: var(--text-muted); background: var(--surface); padding: 3rem; border-radius: 12px;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+            <h2>La tua libreria è vuota.</h2>
+            <p style="margin-top: 1rem; margin-bottom: 2rem;">Inizia a esplorare i giochi popolari per aggiungere titoli
+                alla tua collezione!</p>
+            <a href="/rawg/popolari" class="btn btn-primary">Esplora Popolari</a>
+        </div>
+    </div>
+
+</body>
+
+</html>

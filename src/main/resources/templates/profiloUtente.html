@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${utente != null ? utente.username + ' - Profilo' : 'Profilo Utente'}">Profilo Utente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container" style="max-width: 900px; padding: 2rem;">
+
+        <div th:if="${utente == null}" style="text-align: center; margin-top: 3rem; color: var(--text-muted);">
+            <h2>Utente non trovato.</h2>
+            <a th:href="@{/utenti}" class="btn btn-primary" style="margin-top: 1rem;">Torna agli utenti</a>
+        </div>
+
+        <div th:if="${utente != null}">
+            <!-- Header Profilo -->
+            <div style="background: var(--surface); border-radius: 12px; padding: 2rem; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 2rem; display: flex; align-items: center; gap: 2rem;">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #8e2de2, #4a00e0); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 800; color: white;">
+                    <span th:text="${#strings.substring(utente.username, 0, 1).toUpperCase()}">U</span>
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <h1 style="margin: 0; font-size: 2rem;" th:text="${utente.username}">Username</h1>
+                        <span th:if="${utente.ruolo == 'ADMIN'}" 
+                              style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.8rem; padding: 0.25rem 0.6rem; border-radius: 6px; font-weight: 700;">
+                            ADMIN
+                        </span>
+                    </div>
+                    <p style="color: var(--text-muted); margin-top: 0.5rem;" th:text="'Membro dal: ' + ${utente.dataRegistrazione}"></p>
+                </div>
+            </div>
+
+            <!-- Sezione Libreria dell'utente -->
+            <div style="margin-bottom: 3rem;">
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; color: #fff;">Libreria di <span th:text="${utente.username}"></span></h2>
+                
+                <div class="games-grid" th:if="${utente.videogiocoLibreria != null and !utente.videogiocoLibreria.empty}">
+                    <a th:each="collegamento : ${utente.videogiocoLibreria}" 
+                       th:href="@{/videogioco/{id}(id=${collegamento.videogioco.id})}" class="game-card">
+                        <div class="card-img-container">
+                            <img th:src="${collegamento.videogioco.urlCopertina != null ? collegamento.videogioco.urlCopertina : 'https://via.placeholder.com/600x400?text=Nessuna+Copertina'}"
+                                alt="Cover" class="card-img">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title" th:text="${collegamento.videogioco.titolo}">Titolo</h3>
+                            <div class="card-meta">
+                                <span th:text="${collegamento.videogioco.annoUscita != null ? collegamento.videogioco.annoUscita : 'N/A'}">2023</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <div th:if="${utente.videogiocoLibreria == null or utente.videogiocoLibreria.empty}"
+                     style="background: var(--surface); padding: 2rem; border-radius: 12px; text-align: center; color: var(--text-muted);">
+                    <p>Questo utente non ha ancora aggiunto giochi alla propria libreria.</p>
+                </div>
+            </div>
+
+            <!-- Sezione Recensioni dell'utente -->
+            <div>
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; color: #fff;">Recensioni pubblicate (<span th:text="${utente.commenti != null ? utente.commenti.size() : 0}"></span>)</h2>
+
+                <div th:if="${utente.commenti != null and !utente.commenti.empty}" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div th:each="comm : ${utente.commenti}"
+                         style="background: var(--surface); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <a th:href="@{/videogioco/{id}(id=${comm.videogioco.id})}" 
+                               style="color: var(--primary); font-weight: 700; font-size: 1.1rem; text-decoration: none;"
+                               th:text="${comm.videogioco.titolo}">Titolo Videogioco</a>
+                            <span style="font-size: 1.25rem; font-weight: 800; color: #c471ed;" th:text="${comm.voto} + '/10'"></span>
+                        </div>
+                        <p style="color: rgba(255,255,255,0.85); line-height: 1.6; font-style: italic; margin-bottom: 0.5rem;" th:text="${comm.testo}"></p>
+                        <small style="color: var(--text-muted);" th:text="'Scritta il ' + ${comm.dataScrittura}"></small>
+                    </div>
+                </div>
+
+                <div th:if="${utente.commenti == null or utente.commenti.empty}"
+                     style="background: var(--surface); padding: 2rem; border-radius: 12px; text-align: center; color: var(--text-muted);">
+                    <p>Nessuna recensione pubblicata da questo utente.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrazione - Game Vault</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <div class="login-wrapper">
+        <div class="login-card" style="max-width: 460px;">
+
+            <h1 class="login-title">Crea un Account</h1>
+            <p class="login-subtitle">Entra in Game Vault e gestisci la tua libreria di giochi</p>
+
+            <form th:action="@{/register}" th:object="${registrazioneForm}" method="post">
+                
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" th:field="*{username}" class="form-control" autocomplete="off" />
+                    <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="error-msg" style="margin-top: 0.35rem; font-size: 0.85rem;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" th:field="*{email}" class="form-control" autocomplete="off" />
+                    <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-msg" style="margin-top: 0.35rem; font-size: 0.85rem;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" th:field="*{password}" class="form-control" />
+                    <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error-msg" style="margin-top: 0.35rem; font-size: 0.85rem;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Conferma Password</label>
+                    <input type="password" id="confirmPassword" th:field="*{confirmPassword}" class="form-control" />
+                    <div th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="error-msg" style="margin-top: 0.35rem; font-size: 0.85rem;"></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full" style="margin-top: 1rem;">
+                    Registrati
+                </button>
+            </form>
+
+            <hr class="divider">
+
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+                Hai già un account? 
+                <a th:href="@{/login}" style="color: var(--primary); font-weight: 600; text-decoration: none;">Accedi qui</a>
+            </p>
+
+            <p style="text-align: center; margin-top: 1rem;">
+                <a th:href="@{/rawg/popolari}" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">← Torna al catalogo</a>
+            </p>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

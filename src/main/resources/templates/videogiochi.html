@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogo Videogiochi - Game Vault</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container">
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+            <div>
+                <h1 class="page-title">Catalogo Videogiochi</h1>
+                <p style="color: var(--text-muted);">Tutti i videogiochi archiviati nel database locale della piattaforma.</p>
+            </div>
+            <div sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/admin/videogioco/nuovo}" class="btn btn-primary" style="font-size: 0.9rem;">
+                    + Aggiungi Nuovo Gioco
+                </a>
+            </div>
+        </div>
+
+        <div class="games-grid" th:if="${videogiochi != null and !videogiochi.empty}">
+            <a th:each="gioco : ${videogiochi}" th:href="@{/videogioco/{id}(id=${gioco.id})}" class="game-card">
+                <div class="card-img-container">
+                    <img th:src="${gioco.urlCopertina != null ? gioco.urlCopertina : 'https://via.placeholder.com/600x400?text=Nessuna+Copertina'}"
+                        alt="Cover del gioco" class="card-img">
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title" th:text="${gioco.titolo}">Nome Gioco</h3>
+                    <div class="card-meta" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span th:text="${gioco.annoUscita != null ? gioco.annoUscita : 'Anno sconosciuto'}">2023</span>
+                        <span th:if="${gioco.commenti != null}" style="color: var(--primary); font-size: 0.85rem;"
+                              th:text="${gioco.commenti.size() + ' recensioni'}">0 recensioni</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div th:if="${videogiochi == null or videogiochi.empty}"
+            style="text-align: center; margin-top: 3rem; color: var(--text-muted); background: var(--surface); padding: 3rem; border-radius: 12px;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">👾</div>
+            <h2>Nessun videogioco presente nel database locale.</h2>
+            <p style="margin-top: 1rem; margin-bottom: 2rem;">Aggiungi giochi esplorando i titoli RAWG oppure tramite il pannello amministratore!</p>
+            <a href="/rawg/popolari" class="btn btn-primary">Esplora Popolari</a>
+        </div>
+    </div>
+
+</body>
+
+</html>

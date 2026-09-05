@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<body>
+
+    <nav class="navbar" th:fragment="navbar">
+        <a href="/" class="navbar-brand">🎮 SiwVideogiochi</a>
+        <div style="display: flex; align-items: center; gap: 2rem; flex: 1; justify-content: flex-end;">
+            <!-- Search Bar -->
+            <div id="react-search-bar" style="width: 100%; max-width: 350px; position: relative;"></div>
+
+            <div class="nav-links" style="display: flex; align-items: center; gap: 1.25rem;">
+
+                <a href="/rawg/popolari" style="color: var(--primary); font-weight: 500;">Popolari RAWG</a>
+                <a th:href="@{/videogiochi}">Catalogo Giochi</a>
+                <a th:href="@{/utenti}">Community</a>
+                <a sec:authorize="isAuthenticated()" th:href="@{/libreria}">La Mia Libreria</a>
+
+                <!-- Admin Dashboard Link -->
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}" 
+                   style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); padding: 0.4rem 0.8rem; border-radius: 6px; font-weight: 600; text-decoration: none;">
+                    🛡️ Admin
+                </a>
+
+                <!-- Anonymous Links -->
+                <a sec:authorize="isAnonymous()" th:href="@{/register}"
+                    style="color: var(--text-muted); text-decoration: none; font-weight: 500;">
+                    Registrati
+                </a>
+                <a sec:authorize="isAnonymous()" th:href="@{/login}"
+                    style="background: var(--primary); color: white; padding: 0.5rem 1.2rem; border-radius: 8px; font-weight: 600; text-decoration: none; transition: 0.2s;">
+                    Login
+                </a>
+
+                <!-- Logged-in Username badge and Logout -->
+                <span sec:authorize="isAuthenticated()" style="color: var(--text-muted); font-size: 0.9rem;" 
+                      sec:authentication="name">Utente</span>
+
+                <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post" style="margin: 0;">
+                    <button type="submit"
+                        style="background: rgba(239, 68, 68, 0.8); border: 1px solid rgba(239, 68, 68, 0.4); color: white; padding: 0.5rem 1.2rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: inherit; font-size: inherit;">
+                        Logout
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+        <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+        <script type="text/babel">
+            /*<![CDATA[*/
+            const { useState, useEffect } = React;
+
+            function SearchBar() {
+                const [search, setSearch] = useState('');
+                const [results, setResults] = useState([]);
+                const [loading, setLoading] = useState(false);
+                const [showDropdown, setShowDropdown] = useState(false);
+
+                useEffect(() => {
+                    if (!search.trim()) {
+                        setResults([]);
+                        setShowDropdown(false);
+                        return;
+                    }
+
+                    const delayDebounceFn = setTimeout(() => {
+                        fetchResults();
+                    }, 500);
+
+                    return () => clearTimeout(delayDebounceFn);
+                }, [search]);
+
+                const fetchResults = () => {
+                    setLoading(true);
+                    fetch(`/api/rawg/ricerca?query=${encodeURIComponent(search.trim())}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            setResults(data || []);
+                            setLoading(false);
+                            setShowDropdown(true);
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            setLoading(false);
+                        });
+                };
+
+                return (
+                    <div style={{ position: 'relative', width: '100%', margin: '0 auto' }}>
+                        <input
+                            type="text"
+                            placeholder="Cerca un gioco..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            onFocus={() => { if (results.length > 0) setShowDropdown(true); }}
+                            onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                            style={{ width: '100%', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.2)', fontSize: '0.95rem', boxSizing: 'border-box', backgroundColor: 'rgba(30, 41, 59, 0.9)', color: '#f8fafc' }}
+                        />
+
+                        {loading && (
+                            <div style={{ position: 'absolute', right: '15px', top: '10px', color: '#cbd5e1', fontSize: '0.9rem' }}>
+                                ...
+                            </div>
+                        )}
+
+                        {showDropdown && results.length > 0 && (
+                            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: 'rgba(30, 41, 59, 0.95)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)', zIndex: 1000, maxHeight: '400px', overflowY: 'auto', marginTop: '4px', backdropFilter: 'blur(8px)' }}>
+                                {results.map(gioco => (
+                                    <a key={gioco.id} href={`/rawg/gioco/${gioco.id}`} style={{ display: 'flex', alignItems: 'center', padding: '10px', textDecoration: 'none', color: '#f8fafc', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', transition: 'background-color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                                        <img src={gioco.background_image || 'https://via.placeholder.com/40x40'} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', marginRight: '12px' }} />
+                                        <div>
+                                            <div style={{ fontWeight: '600', fontSize: '0.95rem', marginBottom: '2px' }}>{gioco.name}</div>
+                                            <div style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>{gioco.released || 'N/A'}</div>
+                                        </div>
+                                    </a>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                );
+            }
+
+            const root = ReactDOM.createRoot(document.getElementById('react-search-bar'));
+            root.render(<SearchBar />);
+            /*]]>*/
+        </script>
+    </nav>
+
+</body>
+
+</html>
