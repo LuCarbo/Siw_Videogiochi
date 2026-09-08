@@ -32,7 +32,8 @@
 
             <!-- Colonna Sinistra: Cover e Azioni di Stato -->
             <aside class="detail-aside">
-                <img th:src="${videogioco.urlCopertina != null ? videogioco.urlCopertina : 'https://via.placeholder.com/600x400?text=Nessuna+Copertina'}"
+                <img th:src="${videogioco.urlCopertina != null && !videogioco.urlCopertina.isEmpty() ? videogioco.urlCopertina : '/images/placeholder.svg'}"
+                     onerror="this.onerror=null;this.src='/images/placeholder.svg';"
                      alt="Cover" class="detail-cover">
 
                 <!-- Azione: Rimuovi dalla libreria -->

@@ -5,21 +5,29 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import it.uniroma3.siw.model.Videogioco;
 import it.uniroma3.siw.service.RawgApiService;
 import it.uniroma3.siw.service.UtenteService;
 import it.uniroma3.siw.service.VideogiocoLibreriaService;
+import it.uniroma3.siw.service.VideogiocoService;
+
+import java.util.Optional;
 
 @Controller
 public class RawgController {
 
     private final RawgApiService rawgApiService;
     private final VideogiocoLibreriaService videogiocoLibreriaService;
+    private final VideogiocoService videogiocoService;
     private final UtenteService utenteService;
 
-    public RawgController(RawgApiService rawgApiService, VideogiocoLibreriaService videogiocoLibreriaService,
-            UtenteService utenteService) {
+    public RawgController(RawgApiService rawgApiService,
+                          VideogiocoLibreriaService videogiocoLibreriaService,
+                          VideogiocoService videogiocoService,
+                          UtenteService utenteService) {
         this.rawgApiService = rawgApiService;
         this.videogiocoLibreriaService = videogiocoLibreriaService;
+        this.videogiocoService = videogiocoService;
         this.utenteService = utenteService;
     }
 
@@ -40,10 +48,16 @@ public class RawgController {
         return "rawg_popolari";
     }
 
-    // Questa rotta mostra i dettagli di un singolo gioco preso da RAWG tramite il suo ID
+    // Questa rotta mostra i dettagli di un singolo gioco: se è già nel DB PostgreSQL locale,
+    // reindirizza istantaneamente alla scheda locale senza fare richieste HTTP esterne!
     @GetMapping("/rawg/gioco/{id}")
     public String showGameDetails(@PathVariable("id") Long id, Model model) {
-        // Passiamo i dettagli del gioco all'HTML
+        Optional<Videogioco> giocoLocale = videogiocoService.findByRawgId(id);
+        if (giocoLocale.isPresent()) {
+            return "redirect:/videogioco/" + giocoLocale.get().getId();
+        }
+
+        // Passiamo i dettagli del gioco all'HTML per l'anteprima
         model.addAttribute("gioco", rawgApiService.getGameDetails(id));
 
         Long idUtenteAttuale = utenteService.getCurrentUserId();

@@ -34,7 +34,8 @@
         <div class="games-grid" th:if="${videogiochi != null and !videogiochi.empty}">
             <a th:each="gioco : ${videogiochi}" th:href="@{/videogioco/{id}(id=${gioco.id})}" class="game-card">
                 <div class="card-cover-wrap">
-                    <img th:src="${gioco.urlCopertina != null ? gioco.urlCopertina : 'https://via.placeholder.com/600x400?text=Nessuna+Copertina'}"
+                    <img th:src="${gioco.urlCopertina != null && !gioco.urlCopertina.isEmpty() ? gioco.urlCopertina : '/images/placeholder.svg'}"
+                         onerror="this.onerror=null;this.src='/images/placeholder.svg';"
                          alt="Cover" class="card-cover">
                 </div>
                 <div class="card-body">

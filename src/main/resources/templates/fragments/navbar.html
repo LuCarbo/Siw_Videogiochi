@@ -5,7 +5,7 @@
 
     <nav class="navbar" th:fragment="navbar">
         <!-- Brand -->
-        <a th:href="@{/videogiochi}" class="navbar-brand">
+        <a th:href="@{/rawg/popolari}" class="navbar-brand">
             <span class="brand-dot"></span>
             <span>Game Vault</span>
         </a>
@@ -17,8 +17,7 @@
 
         <!-- Right: Links & Auth -->
         <div class="nav-links">
-            <a th:href="@{/videogiochi}" class="nav-link">Catalogo DB</a>
-            <a th:href="@{/rawg/popolari}" class="nav-link">Esplora RAWG</a>
+            <a th:href="@{/rawg/popolari}" class="nav-link">Esplora Giochi</a>
             <a th:href="@{/utenti}" class="nav-link">Community</a>
             <a sec:authorize="isAuthenticated()" th:href="@{/libreria}" class="nav-link">La Mia Libreria</a>
 
@@ -168,7 +167,8 @@
                                         onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                     >
                                         <img
-                                            src={gioco.background_image || 'https://via.placeholder.com/40x40?text=?'}
+                                            src={gioco.background_image || '/images/placeholder.svg'}
+                                            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/images/placeholder.svg'; }}
                                             alt=""
                                             style={{
                                                 width: '38px',

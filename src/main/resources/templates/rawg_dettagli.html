@@ -32,7 +32,8 @@
 
             <!-- Colonna Sinistra: Cover & Azione Salvataggio nel DB Locale -->
             <aside class="detail-aside">
-                <img th:src="${gioco.background_image != null ? gioco.background_image : 'https://via.placeholder.com/600x400?text=No+Image'}"
+                <img th:src="${gioco.background_image != null && !gioco.background_image.isEmpty() ? gioco.background_image : '/images/placeholder.svg'}"
+                     onerror="this.onerror=null;this.src='/images/placeholder.svg';"
                      alt="Cover" class="detail-cover">
 
                 <!-- Form per Aggiungere il Titolo RAWG alla Libreria Personale (e al DB Locale) -->

@@ -57,8 +57,8 @@
                 <div class="games-grid" th:if="${utente.videogiocoLibreria != null and !utente.videogiocoLibreria.empty}">
                     <a th:each="collegamento : ${utente.videogiocoLibreria}" 
                        th:href="@{/videogioco/{id}(id=${collegamento.videogioco.id})}" class="game-card">
-                        <div class="card-img-container">
-                            <img th:src="${collegamento.videogioco.urlCopertina != null ? collegamento.videogioco.urlCopertina : 'https://via.placeholder.com/600x400?text=Nessuna+Copertina'}"
+                            <img th:src="${collegamento.videogioco.urlCopertina != null && !collegamento.videogioco.urlCopertina.isEmpty() ? collegamento.videogioco.urlCopertina : '/images/placeholder.svg'}"
+                                 onerror="this.onerror=null;this.src='/images/placeholder.svg';"
                                  alt="Cover" class="card-img">
                         </div>
                         <div class="card-content">

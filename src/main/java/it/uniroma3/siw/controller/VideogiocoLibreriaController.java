@@ -56,8 +56,14 @@ public class VideogiocoLibreriaController {
     @PostMapping("/libreria/aggiungiDaRawg")
     public String aggiungiGiocoDaRawg(@RequestParam("rawgId") Long rawgId) {
         Long idUtenteAttuale = utenteService.getCurrentUserId();
-        videogiocoLibreriaService.aggiungiDaRawgALibreria(idUtenteAttuale, rawgId);
-        return "redirect:/rawg/gioco/" + rawgId;
+        if (idUtenteAttuale == null) {
+            return "redirect:/login";
+        }
+        Videogioco giocoSalvato = videogiocoLibreriaService.aggiungiDaRawgALibreria(idUtenteAttuale, rawgId);
+        if (giocoSalvato != null) {
+            return "redirect:/videogioco/" + giocoSalvato.getId();
+        }
+        return "redirect:/rawg/popolari";
     }
 
     // Rotta per inserire o modificare la recensione con Bean Validation server-side

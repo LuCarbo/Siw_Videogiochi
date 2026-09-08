@@ -72,9 +72,9 @@ public class VideogiocoLibreriaService {
      * La chiamata di rete a RAWG viene eseguita OUTSIDE della transazione del database.
      * Solo la fase di scrittura su PostgreSQL è protetta da @Transactional.
      */
-    public void aggiungiDaRawgALibreria(Long utenteId, Long rawgId) {
+    public Videogioco aggiungiDaRawgALibreria(Long utenteId, Long rawgId) {
         if (utenteId == null || rawgId == null) {
-            return;
+            return null;
         }
 
         // Verifica preliminare (read-only) se il gioco esiste già nel DB locale
@@ -85,19 +85,19 @@ public class VideogiocoLibreriaService {
         if (videogioco == null) {
             dto = rawgApiService.getGameDetails(rawgId);
             if (dto == null) {
-                return;
+                return null;
             }
         }
 
-        // Persiste in modo atomico nel DB
-        salvaGiocoELibreriaNelDb(utenteId, rawgId, dto);
+        // Persiste in modo atomico nel DB e restituisce il videogioco salvato
+        return salvaGiocoELibreriaNelDb(utenteId, rawgId, dto);
     }
 
     @Transactional
-    public void salvaGiocoELibreriaNelDb(Long utenteId, Long rawgId, RawgGameDTO dto) {
+    public Videogioco salvaGiocoELibreriaNelDb(Long utenteId, Long rawgId, RawgGameDTO dto) {
         Utente utente = utenteRepository.findById(utenteId).orElse(null);
         if (utente == null) {
-            return;
+            return null;
         }
 
         Videogioco videogioco = videogiocoRepository.findByRawgId(rawgId).orElse(null);
@@ -111,6 +111,10 @@ public class VideogiocoLibreriaService {
                     videogioco.setAnnoUscita(Integer.parseInt(dto.getReleased().substring(0, 4)));
                 } catch (NumberFormatException ignored) {}
             }
+            if (dto.getDescription_raw() != null && !dto.getDescription_raw().trim().isEmpty()) {
+                String desc = dto.getDescription_raw().trim();
+                videogioco.setDescrizione(desc.length() > 1900 ? desc.substring(0, 1900) + "..." : desc);
+            }
             videogioco = videogiocoRepository.save(videogioco);
         }
 
@@ -121,6 +125,8 @@ public class VideogiocoLibreriaService {
             nuovaAggiunta.setDataAggiunta(LocalDate.now());
             videogiocoLibreriaRepository.save(nuovaAggiunta);
         }
+
+        return videogioco;
     }
 
     @Transactional

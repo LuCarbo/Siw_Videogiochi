@@ -134,7 +134,8 @@
                     <tbody>
                         <tr th:each="g : ${videogiochi}">
                             <td>
-                                <img th:src="${g.urlCopertina != null ? g.urlCopertina : 'https://via.placeholder.com/60x60'}" 
+                                <img th:src="${g.urlCopertina != null && !g.urlCopertina.isEmpty() ? g.urlCopertina : '/images/placeholder.svg'}" 
+                                     onerror="this.onerror=null;this.src='/images/placeholder.svg';"
                                      alt="Cover" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border-subtle);" />
                             </td>
                             <td>
