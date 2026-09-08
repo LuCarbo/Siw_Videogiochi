@@ -28,23 +28,7 @@ public class RawgApiService {
     }
 
     public RawgGameDTO getGameById(Long rawgId) {
-
-        // Creiamo lo strumento di Spring Boot per fare richieste su Internet
-        RestTemplate restTemplate = new RestTemplate();
-
-        // indirizzo finale da chiamare
-        String url = baseUrl + rawgId + "?key=" + apiKey;
-
-        try {
-            // richiesta HTTP GET.
-            RawgGameDTO giocoTrovato = restTemplate.getForObject(url, RawgGameDTO.class);
-            return giocoTrovato;
-
-        } catch (Exception e) {
-            // Se RAWG dà un errore lo cattura
-            System.out.println("Attenzione! Errore durante il recupero del gioco da RAWG: " + e.getMessage());
-            return null;
-        }
+        return getGameDetails(rawgId);
     }
 
     // Recupera una lista dei giochi più popolari (o aggiunti di recente).
@@ -68,8 +52,8 @@ public class RawgApiService {
                 .toUriString());
     }
 
-    //Recupera i giochi con filtri avanzati.
-    public List<RawgGameDTO> getGamesWithFilters(String query, String dlcFilter, String ordering, Integer page) {
+    // Recupera la risposta completa paginata da RAWG con filtri avanzati.
+    public RawgResponseDTO getGamesResponseWithFilters(String query, String dlcFilter, String ordering, Integer page) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(baseUrl)
                 .path("/games")
                 .queryParam("key", apiKey)
@@ -101,7 +85,21 @@ public class RawgApiService {
             builder.queryParam("ordering", "-added");
         }
 
-        return fetchGamesList(builder.toUriString());
+        try {
+            return restTemplate.getForObject(builder.toUriString(), RawgResponseDTO.class);
+        } catch (Exception e) {
+            System.err.println("Errore durante la comunicazione con RAWG: " + e.getMessage());
+            return null;
+        }
+    }
+
+    // Recupera i giochi con filtri avanzati.
+    public List<RawgGameDTO> getGamesWithFilters(String query, String dlcFilter, String ordering, Integer page) {
+        RawgResponseDTO response = getGamesResponseWithFilters(query, dlcFilter, ordering, page);
+        if (response != null && response.getResults() != null) {
+            return response.getResults();
+        }
+        return Collections.emptyList();
     }
 
     private List<RawgGameDTO> fetchGamesList(String url) {

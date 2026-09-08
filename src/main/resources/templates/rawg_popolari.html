@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Esplora RAWG - Game Vault</title>
+    <title>Esplora Videogiochi - Game Vault</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -15,12 +15,8 @@
 
     <main class="container">
         <div class="page-header">
-            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;">
-                <span class="badge badge-api">API RAWG Esterna</span>
-                <span class="badge badge-user">Integrazione REST</span>
-            </div>
-            <h1 class="page-title">Esplora Videogiochi Popolari</h1>
-            <p class="page-subtitle">Dati recuperati in tempo reale tramite richieste HTTP alle API pubbliche di RAWG.</p>
+            <h1 class="page-title">Esplora Videogiochi</h1>
+            <p class="page-subtitle">Scopri i titoli più giocati e popolari della community.</p>
         </div>
 
         <!-- Filtri di Ricerca e Ordinamento -->
@@ -46,6 +42,7 @@
                 </select>
             </div>
 
+            <input type="hidden" name="search" th:value="${search}" th:if="${search != null && !search.isEmpty()}" />
             <div>
                 <button type="submit" class="btn btn-primary">
                     Applica Filtri
@@ -71,97 +68,67 @@
             </a>
         </div>
 
+        <!-- Controlli di Paginazione con Selettore Numerico -->
+        <nav aria-label="Paginazione" class="pagination-bar" th:if="${giochi != null && !giochi.isEmpty()}">
+            <!-- Pulsante Precedente -->
+            <a th:if="${hasPrev}"
+               th:href="@{/rawg/popolari(page=${currentPage - 1}, ordering=${ordering}, dlc_filter=${dlc_filter}, search=${search})}"
+               class="btn btn-secondary btn-page">
+                ← Precedente
+            </a>
+            <span th:unless="${hasPrev}" class="btn btn-secondary btn-page btn-disabled">
+                ← Precedente
+            </span>
+
+            <!-- Salto alla prima pagina se il blocco inizia dopo pagina 1 -->
+            <a th:if="${pageNumbers != null && !pageNumbers.isEmpty() && pageNumbers[0] > 1}"
+               th:href="@{/rawg/popolari(page=1, ordering=${ordering}, dlc_filter=${dlc_filter}, search=${search})}"
+               class="btn-page-num">
+                1
+            </a>
+            <span th:if="${pageNumbers != null && !pageNumbers.isEmpty() && pageNumbers[0] > 2}" class="pagination-ellipsis">
+                &hellip;
+            </span>
+
+            <!-- Numeri di Pagina (es. 1, 2, 3, 4, 5) -->
+            <th:block th:each="pageNum : ${pageNumbers}">
+                <!-- Pagina Corrente Attiva -->
+                <span th:if="${pageNum == currentPage}"
+                      class="btn-page-num btn-page-active"
+                      th:text="${pageNum}">1</span>
+
+                <!-- Altra Pagina Cliccabile -->
+                <a th:unless="${pageNum == currentPage}"
+                   th:href="@{/rawg/popolari(page=${pageNum}, ordering=${ordering}, dlc_filter=${dlc_filter}, search=${search})}"
+                   class="btn-page-num"
+                   th:text="${pageNum}">2</a>
+            </th:block>
+
+            <!-- Salto all'ultima pagina se il blocco termina prima dell'ultima pagina -->
+            <span th:if="${pageNumbers != null && !pageNumbers.isEmpty() && pageNumbers[pageNumbers.size() - 1] < totalPages - 1}" class="pagination-ellipsis">
+                &hellip;
+            </span>
+            <a th:if="${pageNumbers != null && !pageNumbers.isEmpty() && pageNumbers[pageNumbers.size() - 1] < totalPages}"
+               th:href="@{/rawg/popolari(page=${totalPages}, ordering=${ordering}, dlc_filter=${dlc_filter}, search=${search})}"
+               class="btn-page-num"
+               th:text="${totalPages}">50</a>
+
+            <!-- Pulsante Successiva -->
+            <a th:if="${hasNext}"
+               th:href="@{/rawg/popolari(page=${currentPage + 1}, ordering=${ordering}, dlc_filter=${dlc_filter}, search=${search})}"
+               class="btn btn-secondary btn-page">
+                Successiva →
+            </a>
+            <span th:unless="${hasNext}" class="btn btn-secondary btn-page btn-disabled">
+                Successiva →
+            </span>
+        </nav>
+
         <div th:if="${giochi == null || giochi.isEmpty()}" class="empty-state">
             <h3>Nessun risultato trovato</h3>
-            <p>Non è stato possibile recuperare titoli con i filtri selezionati dall'API di RAWG.</p>
+            <p>Nessun videogioco trovato con i filtri selezionati.</p>
             <a th:href="@{/rawg/popolari}" class="btn btn-secondary">Ripristina Filtri</a>
         </div>
-
-        <!-- Sentry per Caricamento Asincrono Paginato (Infinite Scroll) -->
-        <div id="loading-spinner" style="text-align: center; margin: 2.5rem 0; display: none; color: var(--text-muted); font-size: 0.9rem;">
-            Caricamento altri titoli da RAWG...
-        </div>
-        <div id="infinite-scroll-sentry" style="height: 20px;"></div>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const gamesGrid = document.querySelector('.games-grid');
-                const sentry = document.getElementById('infinite-scroll-sentry');
-                const loadingSpinner = document.getElementById('loading-spinner');
-
-                if (!gamesGrid || !sentry) return;
-
-                let currentPage = 1;
-                let isLoading = false;
-                let hasMore = true;
-
-                const urlParams = new URLSearchParams(window.location.search);
-                const query = urlParams.get('search') || '';
-                const dlcFilter = urlParams.get('dlc_filter') || 'all';
-                const ordering = urlParams.get('ordering') || '-added';
-
-                const observer = new IntersectionObserver((entries) => {
-                    if (entries[0].isIntersecting && !isLoading && hasMore) {
-                        loadMoreGames();
-                    }
-                }, { rootMargin: '200px' });
-
-                observer.observe(sentry);
-
-                async function loadMoreGames() {
-                    isLoading = true;
-                    loadingSpinner.style.display = 'block';
-                    currentPage++;
-
-                    try {
-                        const url = `/api/rawg/ricerca?query=${encodeURIComponent(query)}&dlc_filter=${encodeURIComponent(dlcFilter)}&ordering=${encodeURIComponent(ordering)}&page=${currentPage}`;
-                        const response = await fetch(url);
-
-                        if (!response.ok) throw new Error('Network response was not ok');
-
-                        const games = await response.json();
-
-                        if (!games || games.length === 0) {
-                            hasMore = false;
-                            observer.disconnect();
-                        } else {
-                            appendGames(games);
-                        }
-                    } catch (error) {
-                        console.error('Errore durante il recupero dei giochi:', error);
-                    } finally {
-                        isLoading = false;
-                        loadingSpinner.style.display = 'none';
-                    }
-                }
-
-                function appendGames(games) {
-                    games.forEach(gioco => {
-                        const gameUrl = `/rawg/gioco/${gioco.id}`;
-                        const bgImage = gioco.background_image ? gioco.background_image : '/images/placeholder.svg';
-                        const released = gioco.released ? 'Uscita: ' + gioco.released : 'Data sconosciuta';
-                        const name = gioco.name || 'Senza nome';
-                        const metacritic = gioco.metacritic ? `<span class="badge badge-score">${gioco.metacritic}</span>` : '';
-
-                        const html = `
-                            <a href="${gameUrl}" class="game-card">
-                                <div class="card-cover-wrap">
-                                    <img src="${bgImage}" onerror="this.onerror=null;this.src='/images/placeholder.svg';" alt="${name}" class="card-cover" />
-                                </div>
-                                <div class="card-body">
-                                    <h2 class="card-title">${name}</h2>
-                                    <div class="card-meta">
-                                        <span>${released}</span>
-                                        ${metacritic}
-                                    </div>
-                                </div>
-                            </a>
-                        `;
-                        gamesGrid.insertAdjacentHTML('beforeend', html);
-                    });
-                }
-            });
-        </script>
     </main>
 
 </body>

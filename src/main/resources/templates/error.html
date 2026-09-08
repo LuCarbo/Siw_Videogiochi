@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${status != null ? 'Errore ' + status + ' - Game Vault' : 'Si è verificato un errore - Game Vault'}">Errore - Game Vault</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="container" style="max-width: 640px; margin-top: 4rem;">
+        <div class="empty-state" style="padding: 3rem 2rem;">
+            <div style="font-size: 3.5rem; line-height: 1; margin-bottom: 1rem;">⚠️</div>
+            <h1 style="font-size: 2rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;" 
+                th:text="${status != null ? 'Errore ' + status : 'Qualcosa è andato storto'}">
+                Si è verificato un errore
+            </h1>
+            <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 1.5rem;"
+               th:text="${message != null and !message.isEmpty() ? message : (status == 404 ? 'La risorsa o pagina richiesta non è stata trovata.' : 'Si è verificato un errore imprevisto durante l\'elaborazione della richiesta.')}">
+                La pagina che stai cercando non esiste o si è verificato un problema sul server.
+            </p>
+
+            <div th:if="${path != null}" style="margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--text-faint);">
+                Percorso richiesto: <code th:text="${path}">/url</code>
+            </div>
+
+            <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                <a th:href="@{/}" class="btn btn-primary">
+                    ← Torna alla Home
+                </a>
+                <a th:href="@{/videogiochi}" class="btn btn-secondary">
+                    Esplora Catalogo
+                </a>
+            </div>
+        </div>
+    </main>
+
+</body>
+
+</html>

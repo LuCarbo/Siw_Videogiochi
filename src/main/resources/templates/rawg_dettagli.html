@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${gioco != null ? gioco.name + ' - RAWG Dettagli' : 'Dettagli Gioco'}">Dettagli Gioco</title>
+    <title th:text="${gioco != null ? gioco.name + ' - Dettagli' : 'Dettagli Gioco'}">Dettagli Gioco</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -15,17 +15,17 @@
 
     <main class="container">
 
-        <!-- Breadcrumb per l'esame -->
+        <!-- Breadcrumb per navigazione fluida -->
         <nav class="breadcrumb">
-            <a th:href="@{/rawg/popolari}">Esplora RAWG</a>
+            <a th:href="@{/rawg/popolari}">Esplora Giochi</a>
             <span class="breadcrumb-sep">/</span>
             <span th:text="${gioco != null ? gioco.name : 'Dettagli'}">Titolo</span>
         </nav>
 
         <div th:if="${gioco == null}" class="empty-state">
             <h3>Scheda di gioco non trovata</h3>
-            <p>Le API di RAWG non hanno restituito informazioni per questo identificativo.</p>
-            <a th:href="@{/rawg/popolari}" class="btn btn-primary">Torna a Esplora RAWG</a>
+            <p>Non è stato possibile reperire informazioni per questo videogioco.</p>
+            <a th:href="@{/rawg/popolari}" class="btn btn-primary">Torna all'Esplorazione</a>
         </div>
 
         <div th:if="${gioco != null}" class="detail-layout">
@@ -87,16 +87,15 @@
             <div class="detail-content">
                 <div>
                     <div class="detail-tags" style="margin-bottom: 0.5rem;">
-                        <span class="badge badge-api">Dati API RAWG</span>
                         <span th:if="${gioco.released != null}" class="badge badge-user" th:text="${gioco.released.substring(0,4)}">2023</span>
                     </div>
                     <h1 class="detail-title" th:text="${gioco.name}">Nome Videogioco</h1>
                 </div>
 
-                <!-- Descrizione da RAWG -->
+                <!-- Descrizione -->
                 <div class="description-box">
                     <h2 class="description-title">Descrizione</h2>
-                    <p class="description-text" th:text="${gioco.description_raw != null && !gioco.description_raw.isEmpty() ? gioco.description_raw : 'Nessuna descrizione testuale disponibile da RAWG.'}">
+                    <p class="description-text" th:text="${gioco.description_raw != null && !gioco.description_raw.isEmpty() ? gioco.description_raw : 'Nessuna descrizione disponibile per questo titolo.'}">
                         Descrizione...
                     </p>
                 </div>

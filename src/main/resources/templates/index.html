@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Vault - Piattaforma e Diario Videoludico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="container">
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-tag">
+                <span class="badge badge-user">Progetto SIW • Piattaforma Gaming</span>
+            </div>
+            <h1 class="hero-title">
+                Il tuo catalogo e diario <span>videoludico</span>
+            </h1>
+            <p class="hero-description">
+                Benvenuto su Game Vault. Esplora migliaia di titoli popolari, gestisci la tua collezione personale
+                e condividi recensioni e voti con la community di videogiocatori.
+            </p>
+            <div class="hero-actions">
+                <a th:href="@{/rawg/popolari}" class="btn btn-primary">
+                    🎮 Esplora Catalogo Giochi
+                </a>
+                <a sec:authorize="isAnonymous()" th:href="@{/login}" class="btn btn-secondary">
+                    Accedi alla Piattaforma
+                </a>
+                <a sec:authorize="isAuthenticated()" th:href="@{/libreria}" class="btn btn-secondary">
+                    📚 La Mia Libreria
+                </a>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <section class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎮</div>
+                <h3 class="feature-title">Esplorazione & Ricerca</h3>
+                <p class="feature-text">
+                    Sfoglia un catalogo sterminato di videogiochi, applica filtri per data o popolarità e trova subito qualsiasi titolo tramite la ricerca in tempo reale.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3 class="feature-title">Collezione Personale</h3>
+                <p class="feature-text">
+                    Crea il tuo profilo e costruisci la tua libreria personale salvando i giochi che possiedi o che stai giocando per ritrovarli facilmente.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">⭐</div>
+                <h3 class="feature-title">Recensioni & Community</h3>
+                <p class="feature-text">
+                    Condividi le tue opinioni assegnando un voto da 1 a 10 ai titoli in libreria e consulta i profili e le valutazioni lasciate dagli altri utenti.
+                </p>
+            </div>
+        </section>
+
+        <!-- Titoli in Evidenza -->
+        <section th:if="${giochiInEvidenza != null and !giochiInEvidenza.empty}" style="margin-bottom: 3.5rem;">
+            <div class="showcase-header">
+                <div>
+                    <h2 class="page-title" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Titoli in Evidenza</h2>
+                    <p class="page-subtitle">Alcuni dei giochi registrati nella piattaforma</p>
+                </div>
+                <a th:href="@{/rawg/popolari}" class="btn btn-secondary btn-sm">
+                    Vedi tutti i giochi →
+                </a>
+            </div>
+
+            <div class="games-grid">
+                <a th:each="gioco : ${giochiInEvidenza}" th:href="@{/videogioco/{id}(id=${gioco.id})}" class="game-card">
+                    <div class="card-cover-wrap">
+                        <img th:src="${gioco.urlCopertina != null && !gioco.urlCopertina.isEmpty() ? gioco.urlCopertina : '/images/placeholder.svg'}"
+                             onerror="this.onerror=null;this.src='/images/placeholder.svg';"
+                             alt="Cover" class="card-cover" />
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title" th:text="${gioco.titolo}">Titolo</h3>
+                        <div class="card-meta">
+                            <span th:text="${gioco.annoUscita != null ? gioco.annoUscita : 'Anno N/D'}">2023</span>
+                            <span style="font-size: 0.8rem; color: var(--primary);">Scheda e recensioni →</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer-bar">
+        <p>Game Vault &bull; Sistemi Informativi su Web (SIW) &bull; Università degli Studi Roma Tre</p>
+    </footer>
+
+</body>
+
+</html>

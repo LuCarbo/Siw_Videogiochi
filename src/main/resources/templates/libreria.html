@@ -17,16 +17,15 @@
         <div class="page-header page-header-flex">
             <div>
                 <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;">
-                    <span class="badge badge-score">Collezione Personale</span>
-                    <span class="badge badge-user" th:text="${videogiochi != null ? videogiochi.size() + ' titoli salvati' : '0 titoli'}">0 titoli</span>
+                    <span class="badge badge-user" th:text="${videogiochi != null ? videogiochi.size() + ' giochi salvati' : '0 giochi'}">0 giochi</span>
                 </div>
                 <h1 class="page-title">La Mia Libreria</h1>
-                <p class="page-subtitle">I titoli aggiunti alla tua collezione personale su Game Vault.</p>
+                <p class="page-subtitle">I titoli aggiunti alla tua collezione personale.</p>
             </div>
 
             <div>
                 <a th:href="@{/rawg/popolari}" class="btn btn-primary">
-                    + Aggiungi da RAWG
+                    + Aggiungi Giochi
                 </a>
             </div>
         </div>

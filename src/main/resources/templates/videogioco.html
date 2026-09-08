@@ -15,17 +15,17 @@
 
     <main class="container">
 
-        <!-- Breadcrumb per navigazione rapida all'esame -->
+        <!-- Breadcrumb per navigazione rapida -->
         <nav class="breadcrumb">
-            <a th:href="@{/videogiochi}">Catalogo Giochi</a>
+            <a th:href="@{/rawg/popolari}">Esplora Giochi</a>
             <span class="breadcrumb-sep">/</span>
             <span th:text="${videogioco != null ? videogioco.titolo : 'Dettaglio'}">Titolo</span>
         </nav>
 
         <div th:if="${videogioco == null}" class="empty-state">
             <h3>Videogioco non trovato nel catalogo</h3>
-            <p>Il titolo richiesto potrebbe essere stato rimosso o non è presente nel database locale.</p>
-            <a th:href="@{/videogiochi}" class="btn btn-primary">Torna al Catalogo</a>
+            <p>Il titolo richiesto potrebbe essere stato rimosso o non è presente nel catalogo.</p>
+            <a th:href="@{/rawg/popolari}" class="btn btn-primary">Torna all'Esplorazione</a>
         </div>
 
         <div th:if="${videogioco != null}" class="detail-layout">
@@ -63,7 +63,7 @@
                     <form th:action="@{/admin/videogioco/elimina/{id}(id=${videogioco.id})}" method="post"
                           onsubmit="return confirm('Sei sicuro di voler eliminare questo titolo e tutti i relativi dati dal DB?');">
                         <button type="submit" class="btn btn-outline btn-full" style="color: #fca5a5; border-color: var(--danger-border);">
-                            Elimina Gioco dal DB (Admin)
+                            Elimina Gioco (Admin)
                         </button>
                     </form>
                 </div>
@@ -73,7 +73,6 @@
             <div class="detail-content">
                 <div>
                     <div class="detail-tags" style="margin-bottom: 0.5rem;">
-                        <span class="badge badge-db">Database Locale</span>
                         <span class="badge badge-user" th:text="${videogioco.annoUscita != null ? 'Uscita: ' + videogioco.annoUscita : 'Anno N/D'}">2023</span>
                         <span th:if="${inLibreria}" class="badge badge-score">Nella tua libreria</span>
                     </div>

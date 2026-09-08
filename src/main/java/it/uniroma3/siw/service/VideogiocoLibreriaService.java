@@ -149,7 +149,7 @@ public class VideogiocoLibreriaService {
 
     @Transactional(readOnly = true)
     public List<VideogiocoLibreria> findAll() {
-        return (List<VideogiocoLibreria>) videogiocoLibreriaRepository.findAll();
+        return videogiocoLibreriaRepository.findAll();
     }
 
     @Transactional

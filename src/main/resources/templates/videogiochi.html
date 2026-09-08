@@ -17,11 +17,10 @@
         <div class="page-header page-header-flex">
             <div>
                 <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;">
-                    <span class="badge badge-db">Database Locale JPA</span>
                     <span class="badge badge-user" th:text="${videogiochi != null ? videogiochi.size() + ' titoli' : '0 titoli'}">0 titoli</span>
                 </div>
                 <h1 class="page-title">Catalogo Videogiochi</h1>
-                <p class="page-subtitle">I titoli salvati e gestiti all'interno del database relazionale PostgreSQL.</p>
+                <p class="page-subtitle">Tutti i titoli registrati nella piattaforma.</p>
             </div>
 
             <div style="display: flex; gap: 0.75rem;">
@@ -29,7 +28,7 @@
                     + Inserisci Gioco (Admin)
                 </a>
                 <a th:href="@{/rawg/popolari}" class="btn btn-secondary">
-                    Esplora Catalogo RAWG →
+                    Esplora Giochi →
                 </a>
             </div>
         </div>
@@ -60,10 +59,10 @@
         </div>
 
         <div th:if="${videogiochi == null or videogiochi.empty}" class="empty-state">
-            <h3>Nessun videogioco presente nel database locale</h3>
-            <p>I giochi vengono registrati nel DB quando li aggiungi dalla sezione RAWG oppure tramite il pannello amministratore.</p>
+            <h3>Nessun videogioco presente a catalogo</h3>
+            <p>I giochi vengono registrati quando li aggiungi dalla sezione di esplorazione oppure tramite inserimento amministratore.</p>
             <div style="display: flex; justify-content: center; gap: 1rem;">
-                <a th:href="@{/rawg/popolari}" class="btn btn-primary">Esplora Giochi Popolari</a>
+                <a th:href="@{/rawg/popolari}" class="btn btn-primary">Esplora Giochi</a>
                 <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/videogioco/nuovo}" class="btn btn-secondary">+ Inserisci Gioco</a>
             </div>
         </div>

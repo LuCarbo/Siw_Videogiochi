@@ -116,16 +116,6 @@ public class Utente {
         this.videogiocoLibreria = videogiocoLibreria;
     }
 
-    @Deprecated
-    public List<VideogiocoLibreria> getRecensioni() {
-        return videogiocoLibreria;
-    }
-
-    @Deprecated
-    public void setRecensioni(List<VideogiocoLibreria> videogiocoLibreria) {
-        this.videogiocoLibreria = videogiocoLibreria;
-    }
-
     public List<Commento> getCommenti() {
         return commenti;
     }

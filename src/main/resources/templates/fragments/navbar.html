@@ -5,7 +5,7 @@
 
     <nav class="navbar" th:fragment="navbar">
         <!-- Brand -->
-        <a th:href="@{/rawg/popolari}" class="navbar-brand">
+        <a th:href="@{/}" class="navbar-brand">
             <span class="brand-dot"></span>
             <span>Game Vault</span>
         </a>
@@ -17,6 +17,7 @@
 
         <!-- Right: Links & Auth -->
         <div class="nav-links">
+            <a th:href="@{/}" class="nav-link">Home</a>
             <a th:href="@{/rawg/popolari}" class="nav-link">Esplora Giochi</a>
             <a th:href="@{/utenti}" class="nav-link">Community</a>
             <a sec:authorize="isAuthenticated()" th:href="@{/libreria}" class="nav-link">La Mia Libreria</a>
@@ -105,7 +106,7 @@
                         <div style={{ position: 'relative' }}>
                             <input
                                 type="text"
-                                placeholder="Cerca un gioco (RAWG)..."
+                                placeholder="Cerca un videogioco..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 onFocus={() => { if (results.length > 0) setShowDropdown(true); }}
@@ -114,11 +115,11 @@
                                     padding: '0.45rem 0.85rem',
                                     paddingRight: loading ? '2rem' : '0.85rem',
                                     borderRadius: '6px',
-                                    border: '1px solid #2d3b55',
+                                    border: '1px solid var(--border-medium)',
                                     fontSize: '0.88rem',
                                     boxSizing: 'border-box',
-                                    backgroundColor: '#0e1626',
-                                    color: '#f8fafc',
+                                    backgroundColor: 'var(--bg-input)',
+                                    color: 'var(--text-main)',
                                     outline: 'none'
                                 }}
                             />
@@ -128,7 +129,7 @@
                                     right: '8px',
                                     top: '50%',
                                     transform: 'translateY(-50%)',
-                                    color: '#94a3b8',
+                                    color: 'var(--text-muted)',
                                     fontSize: '0.75rem'
                                 }}>
                                     ...
@@ -142,10 +143,10 @@
                                 top: 'calc(100% + 4px)',
                                 left: 0,
                                 right: 0,
-                                backgroundColor: '#131b2e',
+                                backgroundColor: 'var(--bg-surface)',
                                 borderRadius: '8px',
-                                border: '1px solid #2d3b55',
-                                boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+                                border: '1px solid var(--border-medium)',
+                                boxShadow: 'var(--shadow-lg)',
                                 zIndex: 1000,
                                 maxHeight: '360px',
                                 overflowY: 'auto'
@@ -159,11 +160,11 @@
                                             alignItems: 'center',
                                             padding: '8px 12px',
                                             textDecoration: 'none',
-                                            color: '#f8fafc',
-                                            borderBottom: '1px solid #1e293d',
+                                            color: 'var(--text-main)',
+                                            borderBottom: '1px solid var(--border-subtle)',
                                             transition: 'background-color 0.15s ease'
                                         }}
-                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1a233a'}
+                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-surface-elevated)'}
                                         onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                     >
                                         <img

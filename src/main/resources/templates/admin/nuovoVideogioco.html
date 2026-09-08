@@ -24,9 +24,9 @@
 
         <div class="page-header" style="margin-bottom: 2rem;">
             <div>
-                <span class="badge badge-admin" style="margin-bottom: 0.4rem;">Area Amministrazione</span>
+                <span class="badge badge-admin" style="margin-bottom: 0.4rem;">Admin</span>
                 <h1 class="page-title">Inserisci Videogioco</h1>
-                <p class="page-subtitle">Inserimento manuale di un nuovo titolo nel database locale.</p>
+                <p class="page-subtitle">Inserimento manuale di un nuovo titolo a catalogo.</p>
             </div>
         </div>
 
@@ -47,7 +47,7 @@
 
                 <div class="form-group">
                     <label for="urlCopertina" class="form-label">URL Immagine di Copertina</label>
-                    <input type="url" id="urlCopertina" th:field="*{urlCopertina}" class="form-control" placeholder="https://images.igdb.com/... o RAWG media" />
+                    <input type="url" id="urlCopertina" th:field="*{urlCopertina}" class="form-control" placeholder="https://... (URL immagine di copertina)" />
                     <div th:if="${#fields.hasErrors('urlCopertina')}" th:errors="*{urlCopertina}" class="form-error"></div>
                 </div>
 

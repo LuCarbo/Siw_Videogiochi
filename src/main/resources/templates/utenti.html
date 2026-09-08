@@ -39,7 +39,7 @@
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <span class="badge badge-db" th:text="${(u.videogiocoLibreria != null ? u.videogiocoLibreria.size() : 0) + ' in libreria'}">0 giochi</span>
+                    <span class="badge badge-user" th:text="${(u.videogiocoLibreria != null ? u.videogiocoLibreria.size() : 0) + ' in libreria'}">0 giochi</span>
                     <a th:href="@{/utente/{id}(id=${u.id})}" class="btn btn-secondary btn-sm">
                         Profilo
                     </a>

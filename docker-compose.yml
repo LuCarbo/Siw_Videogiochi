@@ -1,0 +1,37 @@
+services:
+  postgres-db:
+    image: postgres:alpine
+    container_name: gamevault-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: videogiochi
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d videogiochi"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  gamevault-app:
+    build: .
+    container_name: gamevault-app
+    restart: unless-stopped
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres-db:5432/videogiochi
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgrespassword
+      RAWG_API_KEY: 0e5c5b5a081948b2b7bf4a7c809d3bb3
+      PORT: 8080
+
+volumes:
+  pgdata:

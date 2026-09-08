@@ -35,18 +35,18 @@ public class SecurityConfig {
                                                 .anyRequest().authenticated())
                                 .formLogin(form -> form
                                                 .loginPage("/login")
-                                                .defaultSuccessUrl("/rawg/popolari", true)
+                                                .defaultSuccessUrl("/", false)
                                                 .permitAll())
 
                                 .oauth2Login(oauth2 -> oauth2
                                                 .loginPage("/login")
-                                                .defaultSuccessUrl("/rawg/popolari", true)
+                                                .defaultSuccessUrl("/", true)
                                                 .userInfoEndpoint(userInfo -> userInfo
                                                                 .userService(customOAuth2UserService)))
 
                                 .logout(logout -> logout
                                                 .logoutUrl("/logout")
-                                                .logoutSuccessUrl("/rawg/popolari")
+                                                .logoutSuccessUrl("/")
                                                 .permitAll());
 
                 return http.build();

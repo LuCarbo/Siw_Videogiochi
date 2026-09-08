@@ -51,21 +51,22 @@
                         <h2 class="page-title" style="font-size: 1.4rem;">Libreria Personale</h2>
                         <p class="page-subtitle" th:text="'I titoli collezionati da ' + ${utente.username}">Collezione</p>
                     </div>
-                    <span class="badge badge-db" th:text="${(utente.videogiocoLibreria != null ? utente.videogiocoLibreria.size() : 0) + ' giochi'}">0 giochi</span>
+                    <span class="badge badge-user" th:text="${(utente.videogiocoLibreria != null ? utente.videogiocoLibreria.size() : 0) + ' giochi'}">0 giochi</span>
                 </div>
 
                 <div class="games-grid" th:if="${utente.videogiocoLibreria != null and !utente.videogiocoLibreria.empty}">
                     <a th:each="collegamento : ${utente.videogiocoLibreria}" 
                        th:href="@{/videogioco/{id}(id=${collegamento.videogioco.id})}" class="game-card">
+                        <div class="card-cover-wrap">
                             <img th:src="${collegamento.videogioco.urlCopertina != null && !collegamento.videogioco.urlCopertina.isEmpty() ? collegamento.videogioco.urlCopertina : '/images/placeholder.svg'}"
                                  onerror="this.onerror=null;this.src='/images/placeholder.svg';"
-                                 alt="Cover" class="card-img">
+                                 alt="Cover" class="card-cover">
                         </div>
-                        <div class="card-content">
+                        <div class="card-body">
                             <h3 class="card-title" th:text="${collegamento.videogioco.titolo}">Titolo</h3>
                             <div class="card-meta">
-                                <span class="card-year" th:text="${collegamento.videogioco.annoUscita != null ? collegamento.videogioco.annoUscita : 'N/D'}">2023</span>
-                                <span class="badge badge-db">In Libreria</span>
+                                <span th:text="${collegamento.videogioco.annoUscita != null ? collegamento.videogioco.annoUscita : 'Anno N/D'}">2023</span>
+                                <span style="font-size: 0.8rem; color: var(--primary);">Vedi dettagli →</span>
                             </div>
                         </div>
                     </a>

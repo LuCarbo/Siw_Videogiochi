@@ -60,7 +60,7 @@ public class CommentoService {
 
     @Transactional(readOnly = true)
     public List<Commento> findAll() {
-        return (List<Commento>) commentoRepository.findAll();
+        return commentoRepository.findAll();
     }
 
     @Transactional(readOnly = true)

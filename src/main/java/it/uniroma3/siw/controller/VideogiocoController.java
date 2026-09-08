@@ -81,7 +81,12 @@ public class VideogiocoController {
     }
 
     @GetMapping("/")
-    public String showHomePage() {
-        return "redirect:/rawg/popolari";
+    public String showHomePage(Model model) {
+        List<Videogioco> tuttiIGiochi = videogiocoService.findAll();
+        List<Videogioco> giochiInEvidenza = (tuttiIGiochi != null && tuttiIGiochi.size() > 4)
+                ? tuttiIGiochi.subList(0, 4)
+                : tuttiIGiochi;
+        model.addAttribute("giochiInEvidenza", giochiInEvidenza);
+        return "index";
     }
 }
