@@ -47,6 +47,16 @@ public class UtenteService {
     }
 
     @Transactional(readOnly = true)
+    public Optional<Utente> findByEmail(String email) {
+        return utenteRepository.findByEmail(email);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(String email) {
+        return utenteRepository.findByEmail(email).isPresent();
+    }
+
+    @Transactional(readOnly = true)
     public List<Utente> findAll() {
         return (List<Utente>) utenteRepository.findAll();
     }
@@ -73,25 +83,27 @@ public class UtenteService {
             return null;
         }
         String username;
-        String email = "default@example.com";
+        String email = null;
         if (authentication.getPrincipal() instanceof UserDetails) {
             username = ((UserDetails) authentication.getPrincipal()).getUsername();
         } else if (authentication.getPrincipal() instanceof OAuth2User) {
             OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
-            username = oauth2User.getAttribute("email");
             email = oauth2User.getAttribute("email");
-            if (username == null)
-                username = authentication.getName();
+            username = email != null ? email : authentication.getName();
         } else {
             username = authentication.getName();
         }
 
         Utente u = findByUsername(username).orElse(null);
+        if (u == null && email != null) {
+            u = utenteRepository.findByEmail(email).orElse(null);
+        }
+
         if (u == null) {
             u = new Utente();
             u.setUsername(username);
-            u.setEmail(email);
-            u.setPassword("oauth2_placeholder");
+            u.setEmail(email != null ? email : username + "@oauth.local");
+            u.setPassword(org.springframework.security.crypto.bcrypt.BCrypt.hashpw(java.util.UUID.randomUUID().toString(), org.springframework.security.crypto.bcrypt.BCrypt.gensalt()));
             u.setRuolo("USER");
             u.setDataRegistrazione(LocalDate.now());
             u = utenteRepository.save(u);

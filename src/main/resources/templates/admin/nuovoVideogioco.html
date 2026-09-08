@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuovo Videogioco - Pannello Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
@@ -13,45 +13,55 @@
 
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <div class="container" style="max-width: 650px; padding: 2rem;">
+    <main class="container" style="max-width: 680px;">
+
+        <!-- Breadcrumb per navigazione fluida all'esame -->
+        <nav class="breadcrumb">
+            <a th:href="@{/admin/dashboard}">Pannello Admin</a>
+            <span class="breadcrumb-sep">/</span>
+            <span>Nuovo Videogioco</span>
+        </nav>
 
         <div class="page-header" style="margin-bottom: 2rem;">
-            <a th:href="@{/admin/dashboard}" style="color: var(--text-muted); font-size: 0.9rem; text-decoration: none;">← Torna alla Dashboard Admin</a>
-            <h1 class="page-title" style="margin-top: 0.5rem;">Aggiungi Nuovo Videogioco</h1>
-            <p style="color: var(--text-muted);">Inserisci manualmente un titolo nel database locale.</p>
+            <div>
+                <span class="badge badge-admin" style="margin-bottom: 0.4rem;">Area Amministrazione</span>
+                <h1 class="page-title">Inserisci Videogioco</h1>
+                <p class="page-subtitle">Inserimento manuale di un nuovo titolo nel database locale.</p>
+            </div>
         </div>
 
-        <div style="background: var(--surface); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 2rem;">
-            <form th:action="@{/admin/videogioco/nuovo}" th:object="${videogiocoForm}" method="post" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div class="form-card">
+            <form th:action="@{/admin/videogioco/nuovo}" th:object="${videogiocoForm}" method="post">
                 
                 <div class="form-group">
-                    <label for="titolo">Titolo del Videogioco *</label>
-                    <input type="text" id="titolo" th:field="*{titolo}" class="form-control" autocomplete="off" />
-                    <div th:if="${#fields.hasErrors('titolo')}" th:errors="*{titolo}" class="error-msg" style="margin-top: 0.35rem; font-size: 0.85rem; color: #ef4444;"></div>
+                    <label for="titolo" class="form-label">Titolo del Videogioco *</label>
+                    <input type="text" id="titolo" th:field="*{titolo}" class="form-control" placeholder="es. The Witcher 3: Wild Hunt" autocomplete="off" />
+                    <div th:if="${#fields.hasErrors('titolo')}" th:errors="*{titolo}" class="form-error"></div>
                 </div>
 
                 <div class="form-group">
-                    <label for="annoUscita">Anno di Uscita</label>
-                    <input type="number" id="annoUscita" th:field="*{annoUscita}" class="form-control" placeholder="es. 2024" />
-                    <div th:if="${#fields.hasErrors('annoUscita')}" th:errors="*{annoUscita}" class="error-msg" style="margin-top: 0.35rem; font-size: 0.85rem; color: #ef4444;"></div>
+                    <label for="annoUscita" class="form-label">Anno di Uscita</label>
+                    <input type="number" id="annoUscita" th:field="*{annoUscita}" class="form-control" placeholder="es. 2024" min="1950" max="2100" />
+                    <div th:if="${#fields.hasErrors('annoUscita')}" th:errors="*{annoUscita}" class="form-error"></div>
                 </div>
 
                 <div class="form-group">
-                    <label for="urlCopertina">URL Immagine di Copertina</label>
-                    <input type="url" id="urlCopertina" th:field="*{urlCopertina}" class="form-control" placeholder="https://..." />
+                    <label for="urlCopertina" class="form-label">URL Immagine di Copertina</label>
+                    <input type="url" id="urlCopertina" th:field="*{urlCopertina}" class="form-control" placeholder="https://images.igdb.com/... o RAWG media" />
+                    <div th:if="${#fields.hasErrors('urlCopertina')}" th:errors="*{urlCopertina}" class="form-error"></div>
                 </div>
 
                 <div class="form-group">
-                    <label for="descrizione">Descrizione</label>
-                    <textarea id="descrizione" th:field="*{descrizione}" rows="5" class="form-control" style="resize: vertical;"></textarea>
-                    <div th:if="${#fields.hasErrors('descrizione')}" th:errors="*{descrizione}" class="error-msg" style="margin-top: 0.35rem; font-size: 0.85rem; color: #ef4444;"></div>
+                    <label for="descrizione" class="form-label">Descrizione del Gioco</label>
+                    <textarea id="descrizione" th:field="*{descrizione}" rows="4" class="form-control" placeholder="Descrizione dettagliata della trama, caratteristiche di gioco e ambientazione..."></textarea>
+                    <div th:if="${#fields.hasErrors('descrizione')}" th:errors="*{descrizione}" class="form-error"></div>
                 </div>
 
-                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                    <button type="submit" class="btn btn-primary" style="flex: 1; padding: 0.75rem;">
-                        Salva nel Catalogo
+                <div style="display: flex; gap: 0.85rem; margin-top: 1.75rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        Salva nel Catalogo Locale
                     </button>
-                    <a th:href="@{/admin/dashboard}" class="btn" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); text-decoration: none; padding: 0.75rem 1.5rem; text-align: center;">
+                    <a th:href="@{/admin/dashboard}" class="btn btn-secondary">
                         Annulla
                     </a>
                 </div>
@@ -59,7 +69,7 @@
             </form>
         </div>
 
-    </div>
+    </main>
 
 </body>
 

@@ -4,94 +4,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giochi Popolari - Siw Videogiochi</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Esplora RAWG - Game Vault</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body>
 
-    <div th:replace="~{fragments/navbar :: navbar(paginaAttuale='popolari')}"></div>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <div class="container">
+    <main class="container">
         <div class="page-header">
-            <h1 class="page-title">Esplora Giochi</h1>
-            <p style="color: var(--text-muted);">Esplora i giochi recuperati in tempo reale tramite le API di RAWG.</p>
+            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;">
+                <span class="badge badge-api">API RAWG Esterna</span>
+                <span class="badge badge-user">Integrazione REST</span>
+            </div>
+            <h1 class="page-title">Esplora Videogiochi Popolari</h1>
+            <p class="page-subtitle">Dati recuperati in tempo reale tramite richieste HTTP alle API pubbliche di RAWG.</p>
         </div>
 
-        <!-- Form Filtri -->
-        <form action="/rawg/popolari" method="get" class="filters-form"
-            style="display: flex; gap: 1.5rem; margin-bottom: 2rem; align-items: flex-end; flex-wrap: wrap; background: rgba(30, 41, 59, 0.5); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-            <div style="min-width: 250px;">
-                <label for="ordering"
-                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">Ordina
-                    per</label>
-                <select id="ordering" name="ordering"
-                    style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(15, 23, 42, 0.8); color: white;">
+        <!-- Filtri di Ricerca e Ordinamento -->
+        <form th:action="@{/rawg/popolari}" method="get" class="filters-bar">
+            <div class="filter-item">
+                <label for="ordering" class="form-label">Ordina per</label>
+                <select id="ordering" name="ordering" class="form-control">
                     <option value="-added" th:selected="${ordering == '-added'}">Popolarità (Più aggiunti)</option>
-                    <option value="-released" th:selected="${ordering == '-released'}">Data di uscita (Più recenti)
-                    </option>
-                    <option value="released" th:selected="${ordering == 'released'}">Data di uscita (Meno recenti)
-                    </option>
-                    <option value="-metacritic" th:selected="${ordering == '-metacritic'}">Votazione (Alta-Bassa)
-                    </option>
-                    <option value="metacritic" th:selected="${ordering == 'metacritic'}">Votazione (Bassa-Alta)</option>
-                    <option value="name" th:selected="${ordering == 'name'}">Nome (A-Z)</option>
-                    <option value="-name" th:selected="${ordering == '-name'}">Nome (Z-A)</option>
+                    <option value="-released" th:selected="${ordering == '-released'}">Data di uscita (Più recenti)</option>
+                    <option value="released" th:selected="${ordering == 'released'}">Data di uscita (Meno recenti)</option>
+                    <option value="-metacritic" th:selected="${ordering == '-metacritic'}">Votazione Metacritic (Decrescente)</option>
+                    <option value="metacritic" th:selected="${ordering == 'metacritic'}">Votazione Metacritic (Crescente)</option>
+                    <option value="name" th:selected="${ordering == 'name'}">Nome alfabetico (A-Z)</option>
                 </select>
             </div>
 
-            <div style="min-width: 200px;">
-                <label for="dlc_filter"
-                    style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">Tipo
-                    Contenuto</label>
-                <select id="dlc_filter" name="dlc_filter"
-                    style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(15, 23, 42, 0.8); color: white;">
-                    <option value="all" th:selected="${dlc_filter == 'all'}">Giochi + DLC</option>
-                    <option value="games" th:selected="${dlc_filter == 'games'}">Solo Giochi</option>
-                    <option value="dlc" th:selected="${dlc_filter == 'dlc'}">Solo DLC</option>
+            <div class="filter-item">
+                <label for="dlc_filter" class="form-label">Tipologia di Contenuto</label>
+                <select id="dlc_filter" name="dlc_filter" class="form-control">
+                    <option value="all" th:selected="${dlc_filter == 'all'}">Tutti i contenuti (Giochi + DLC)</option>
+                    <option value="games" th:selected="${dlc_filter == 'games'}">Solo Giochi completi</option>
+                    <option value="dlc" th:selected="${dlc_filter == 'dlc'}">Solo DLC ed espansioni</option>
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-primary"
-                style="padding: 0.8rem 1.5rem; border: none; border-radius: 8px; background: var(--primary); color: white; font-weight: 600; cursor: pointer; transition: background 0.2s;">
-                Applica Filtri
-            </button>
+            <div>
+                <button type="submit" class="btn btn-primary">
+                    Applica Filtri
+                </button>
+            </div>
         </form>
 
-        <!-- Griglia principale -->
+        <!-- Griglia dei Giochi RAWG -->
         <div class="games-grid" th:if="${giochi != null && !giochi.isEmpty()}">
             <a th:each="gioco : ${giochi}" th:href="@{/rawg/gioco/{id}(id=${gioco.id})}" class="game-card">
-                <div class="card-img-container">
+                <div class="card-cover-wrap">
                     <img th:src="${gioco.background_image != null ? gioco.background_image : 'https://via.placeholder.com/600x400?text=No+Image'}"
-                        alt="Cover del gioco" class="card-img" />
+                         alt="Cover" class="card-cover" />
                 </div>
-                <div class="card-content">
-                    <h3 class="card-title" th:text="${gioco.name}">Nome Gioco</h3>
+                <div class="card-body">
+                    <h2 class="card-title" th:text="${gioco.name}">Nome Gioco</h2>
                     <div class="card-meta">
-                        <span th:text="${gioco.released != null ? gioco.released : 'Data sconosciuta'}">Data
-                            Rilascio</span>
+                        <span th:text="${gioco.released != null ? 'Uscita: ' + gioco.released : 'Data sconosciuta'}">Data Rilascio</span>
+                        <span th:if="${gioco.metacritic != null}" class="badge badge-score" th:text="${gioco.metacritic}">90</span>
                     </div>
                 </div>
             </a>
         </div>
 
-        <div th:if="${giochi == null || giochi.isEmpty()}"
-            style="text-align: center; margin-top: 3rem; color: var(--text-muted);">
-            <h2>Nessun gioco popolare trovato al momento.</h2>
+        <div th:if="${giochi == null || giochi.isEmpty()}" class="empty-state">
+            <h3>Nessun risultato trovato</h3>
+            <p>Non è stato possibile recuperare titoli con i filtri selezionati dall'API di RAWG.</p>
+            <a th:href="@{/rawg/popolari}" class="btn btn-secondary">Ripristina Filtri</a>
         </div>
-        <!-- Sentry per scroll infinito -->
-        <div id="loading-spinner" style="text-align: center; margin: 2rem 0; display: none;">
-            <div
-                style="display: inline-block; width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1); border-radius: 50%; border-top-color: var(--primary); animation: spin 1s ease-in-out infinite;">
-            </div>
-            <style>
-                @keyframes spin {
-                    to {
-                        transform: rotate(360deg);
-                    }
-                }
-            </style>
+
+        <!-- Sentry per Caricamento Asincrono Paginato (Infinite Scroll) -->
+        <div id="loading-spinner" style="text-align: center; margin: 2.5rem 0; display: none; color: var(--text-muted); font-size: 0.9rem;">
+            Caricamento altri titoli da RAWG...
         </div>
         <div id="infinite-scroll-sentry" style="height: 20px;"></div>
 
@@ -140,7 +127,7 @@
                             appendGames(games);
                         }
                     } catch (error) {
-                        console.error('Errore durante il caricamento di più giochi:', error);
+                        console.error('Errore durante il recupero dei giochi:', error);
                     } finally {
                         isLoading = false;
                         loadingSpinner.style.display = 'none';
@@ -151,18 +138,20 @@
                     games.forEach(gioco => {
                         const gameUrl = `/rawg/gioco/${gioco.id}`;
                         const bgImage = gioco.background_image ? gioco.background_image : 'https://via.placeholder.com/600x400?text=No+Image';
-                        const released = gioco.released ? gioco.released : 'Data sconosciuta';
+                        const released = gioco.released ? 'Uscita: ' + gioco.released : 'Data sconosciuta';
                         const name = gioco.name || 'Senza nome';
+                        const metacritic = gioco.metacritic ? `<span class="badge badge-score">${gioco.metacritic}</span>` : '';
 
                         const html = `
                             <a href="${gameUrl}" class="game-card">
-                                <div class="card-img-container">
-                                    <img src="${bgImage}" alt="Cover del gioco" class="card-img" />
+                                <div class="card-cover-wrap">
+                                    <img src="${bgImage}" alt="${name}" class="card-cover" />
                                 </div>
-                                <div class="card-content">
-                                    <h3 class="card-title">${name}</h3>
+                                <div class="card-body">
+                                    <h2 class="card-title">${name}</h2>
                                     <div class="card-meta">
                                         <span>${released}</span>
+                                        ${metacritic}
                                     </div>
                                 </div>
                             </a>
@@ -172,7 +161,7 @@
                 }
             });
         </script>
-    </div>
+    </main>
 
 </body>
 

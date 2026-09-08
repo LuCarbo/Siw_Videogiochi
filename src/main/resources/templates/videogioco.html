@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${videogioco != null ? videogioco.titolo + ' - Game Vault' : 'Dettaglio Gioco'}">Dettaglio Gioco</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title th:text="${videogioco != null ? videogioco.titolo + ' - Game Vault' : 'Dettaglio Videogioco'}">Dettaglio Videogioco</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
@@ -13,163 +13,187 @@
 
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <div class="container" style="max-width: 1000px; padding: 2rem;">
+    <main class="container">
 
-        <div th:if="${videogioco == null}" style="text-align: center; margin-top: 3rem; color: var(--text-muted);">
-            <h2>Gioco non trovato nel catalogo.</h2>
-            <a th:href="@{/videogiochi}" class="btn btn-primary" style="margin-top: 1rem;">Torna al Catalogo</a>
+        <!-- Breadcrumb per navigazione rapida all'esame -->
+        <nav class="breadcrumb">
+            <a th:href="@{/videogiochi}">Catalogo Giochi</a>
+            <span class="breadcrumb-sep">/</span>
+            <span th:text="${videogioco != null ? videogioco.titolo : 'Dettaglio'}">Titolo</span>
+        </nav>
+
+        <div th:if="${videogioco == null}" class="empty-state">
+            <h3>Videogioco non trovato nel catalogo</h3>
+            <p>Il titolo richiesto potrebbe essere stato rimosso o non è presente nel database locale.</p>
+            <a th:href="@{/videogiochi}" class="btn btn-primary">Torna al Catalogo</a>
         </div>
 
-        <div th:if="${videogioco != null}" class="game-details"
-            style="display: grid; grid-template-columns: 1fr 2fr; gap: 3rem;">
+        <div th:if="${videogioco != null}" class="detail-layout">
 
-            <!-- Immagine e Bottoni Azione -->
-            <div class="game-details-img" style="display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Colonna Sinistra: Cover e Azioni di Stato -->
+            <aside class="detail-aside">
                 <img th:src="${videogioco.urlCopertina != null ? videogioco.urlCopertina : 'https://via.placeholder.com/600x400?text=Nessuna+Copertina'}"
-                    alt="Cover" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                     alt="Cover" class="detail-cover">
 
-                <!-- Form per rimuovere il gioco dalla libreria (se presente) -->
-                <form th:if="${inLibreria}" th:action="@{/libreria/rimuovi}" method="post" style="margin: 0; display: flex;">
+                <!-- Azione: Rimuovi dalla libreria -->
+                <form th:if="${inLibreria}" th:action="@{/libreria/rimuovi}" method="post">
                     <input type="hidden" name="videogiocoId" th:value="${videogioco.id}" />
-                    <button type="submit" class="btn"
-                        style="flex: 1; text-align: center; background: rgba(239, 68, 68, 0.8); border: 1px solid rgba(239, 68, 68, 0.4); color: white; cursor: pointer; border-radius: 8px; padding: 0.75rem 1.5rem; font-weight: 600; transition: all 0.2s ease;">
-                        Rimuovi dalla libreria
+                    <button type="submit" class="btn btn-danger btn-full">
+                        Rimuovi dalla Libreria
                     </button>
                 </form>
 
-                <!-- Bottone per eliminazione gioco riservato all'ADMIN -->
-                <div sec:authorize="hasRole('ADMIN')" style="margin-top: 0.5rem;">
-                    <form th:action="@{/admin/videogioco/elimina/{id}(id=${videogioco.id})}" method="post" 
-                          onsubmit="return confirm('Sei sicuro di voler eliminare questo gioco e tutte le sue recensioni dal database?');" 
-                          style="margin: 0;">
-                        <button type="submit" class="btn" 
-                                style="width: 100%; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
-                            🛡️ Elimina Gioco dal DB (Admin)
+                <!-- Azione: Aggiungi alla libreria se non presente -->
+                <form th:unless="${inLibreria}" th:action="@{/libreria/aggiungi}" method="post" sec:authorize="isAuthenticated()">
+                    <input type="hidden" name="videogiocoId" th:value="${videogioco.id}" />
+                    <button type="submit" class="btn btn-primary btn-full">
+                        + Aggiungi alla Mia Libreria
+                    </button>
+                </form>
+
+                <div th:unless="${inLibreria}" sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" class="btn btn-secondary btn-full">
+                        Accedi per aggiungere alla libreria
+                    </a>
+                </div>
+
+                <!-- Azione Amministratore: Eliminazione dal Database -->
+                <div sec:authorize="hasRole('ADMIN')" style="margin-top: 0.5rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+                    <form th:action="@{/admin/videogioco/elimina/{id}(id=${videogioco.id})}" method="post"
+                          onsubmit="return confirm('Sei sicuro di voler eliminare questo titolo e tutti i relativi dati dal DB?');">
+                        <button type="submit" class="btn btn-outline btn-full" style="color: #fca5a5; border-color: var(--danger-border);">
+                            Elimina Gioco dal DB (Admin)
                         </button>
                     </form>
                 </div>
-            </div>
+            </aside>
 
-            <!-- Colonna Destra: Dettagli -->
-            <div class="game-details-content">
-                <h1 th:text="${videogioco.titolo}"
-                    style="font-size: 2.8rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, #fff, #a0a0a0); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                    Titolo Gioco</h1>
-
-                <div style="display: flex; gap: 1rem; margin-bottom: 2rem; color: var(--text-muted); font-size: 1.1rem; align-items: center;">
-                    <span th:text="${videogioco.annoUscita != null ? videogioco.annoUscita : 'Anno sconosciuto'}">2023</span>
+            <!-- Colonna Destra: Dettagli, Recensione Personale e Recensioni Community -->
+            <div class="detail-content">
+                <div>
+                    <div class="detail-tags" style="margin-bottom: 0.5rem;">
+                        <span class="badge badge-db">Database Locale</span>
+                        <span class="badge badge-user" th:text="${videogioco.annoUscita != null ? 'Uscita: ' + videogioco.annoUscita : 'Anno N/D'}">2023</span>
+                        <span th:if="${inLibreria}" class="badge badge-score">Nella tua libreria</span>
+                    </div>
+                    <h1 class="detail-title" th:text="${videogioco.titolo}">Titolo Gioco</h1>
                 </div>
 
-                <div style="margin-bottom: 2rem; line-height: 1.6; color: rgba(255,255,255,0.8);">
-                    <h3>Descrizione</h3>
-                    <p th:text="${videogioco.descrizione != null ? videogioco.descrizione : 'Nessuna descrizione disponibile.'}"
-                        style="margin-top: 0.5rem;">Descrizione del gioco...</p>
+                <!-- Descrizione -->
+                <div class="description-box">
+                    <h2 class="description-title">Descrizione</h2>
+                    <p class="description-text" th:text="${videogioco.descrizione != null && !videogioco.descrizione.isEmpty() ? videogioco.descrizione : 'Nessuna descrizione disponibile per questo titolo.'}">
+                        Descrizione del gioco...
+                    </p>
                 </div>
 
-                <!-- SEZIONE RECENSIONE (Mostrata solo se il gioco è nella libreria) -->
-                <div th:if="${inLibreria}"
-                    style="margin-top: 3rem; background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                    <h3 style="margin-bottom: 1rem; color: #fff;">La tua recensione</h3>
+                <!-- SEZIONE RECENSIONE UTENTE (Disponibile se il gioco è in libreria) -->
+                <section class="review-card" th:if="${inLibreria}">
+                    <div class="review-card-header">
+                        <h2 class="review-card-title">La tua recensione</h2>
+                    </div>
 
-                    <!-- VISUALIZZAZIONE DELLA RECENSIONE (Se esiste già un voto e non ci sono errori attivi) -->
-                    <div th:if="${recensione?.voto != null and haErroriValidazione != true}" id="recensione-testo">
-                        <div style="margin-bottom: 1.5rem;">
-                            <span style="font-size: 1.5rem; font-weight: bold; color: #c471ed;"
-                                th:text="${recensione.voto} + '/10'"></span>
-                            <p style="margin-top: 0.5rem; color: rgba(255,255,255,0.8); line-height: 1.5; font-style: italic;"
-                                th:text="${recensione.testo}"></p>
+                    <!-- Vista Recensione Esistente (se presente e non in modalità errore) -->
+                    <div th:if="${recensione?.voto != null and haErroriValidazione != true}" id="recensione-box" class="my-review-box">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                            <span class="badge badge-score" th:text="${recensione.voto} + ' / 10'">8 / 10</span>
+                            <small class="review-date" th:text="'Registrata il ' + ${recensione.dataScrittura}">Data</small>
                         </div>
+                        <p class="review-text" th:text="${recensione.testo}">Testo della recensione...</p>
 
-                        <div style="display: flex; gap: 1rem;">
-                            <button type="button"
-                                onclick="document.getElementById('form-recensione').style.display = 'flex'; document.getElementById('recensione-testo').style.display = 'none';"
-                                style="background: transparent; color: #a0a0a0; border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-                                Modifica
+                        <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                    onclick="document.getElementById('form-recensione').style.display = 'block'; document.getElementById('recensione-box').style.display = 'none';">
+                                Modifica Recensione
                             </button>
-
                             <form th:action="@{/libreria/recensione/rimuovi}" method="post" style="margin: 0;">
                                 <input type="hidden" name="videogiocoId" th:value="${videogioco.id}" />
-                                <button type="submit"
-                                    style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-                                    Elimina
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    Elimina Recensione
                                 </button>
                             </form>
                         </div>
                     </div>
 
-                    <!-- FORM DI INSERIMENTO O MODIFICA CON BEAN VALIDATION -->
+                    <!-- Form di Inserimento / Modifica con Bean Validation -->
                     <form id="form-recensione" th:action="@{/libreria/recensisci}" th:object="${commentoForm}" method="post"
-                        th:style="${(recensione?.voto != null and haErroriValidazione != true)} ? 'display: none; flex-direction: column; gap: 1rem;' : 'display: flex; flex-direction: column; gap: 1rem;'">
+                          th:style="${recensione?.voto != null and haErroriValidazione != true} ? 'display: none;' : 'display: block;'">
 
                         <input type="hidden" th:field="*{videogiocoId}" />
 
-                        <div>
-                            <label for="voto" style="display: block; margin-bottom: 0.5rem; color: #a0a0a0;">Voto (1-10):</label>
-                            <input type="number" id="voto" th:field="*{voto}" min="1" max="10"
-                                style="width: 100px; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-size: 1rem;" />
-                            <div th:if="${#fields.hasErrors('voto')}" th:errors="*{voto}" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.35rem;"></div>
+                        <div class="form-group">
+                            <label for="voto" class="form-label">Valutazione numerica (da 1 a 10) *</label>
+                            <input type="number" id="voto" th:field="*{voto}" min="1" max="10" class="form-control" style="max-width: 140px;" placeholder="1 - 10" />
+                            <div th:if="${#fields.hasErrors('voto')}" th:errors="*{voto}" class="form-error"></div>
                         </div>
 
-                        <div>
-                            <label for="testo" style="display: block; margin-bottom: 0.5rem; color: #a0a0a0;">Commento:</label>
-                            <textarea id="testo" th:field="*{testo}" rows="4"
-                                style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-size: 1rem; resize: vertical; box-sizing: border-box;"></textarea>
-                            <div th:if="${#fields.hasErrors('testo')}" th:errors="*{testo}" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.35rem;"></div>
+                        <div class="form-group">
+                            <label for="testo" class="form-label">Commento testuale *</label>
+                            <textarea id="testo" th:field="*{testo}" rows="4" class="form-control" placeholder="Scrivi le tue impressioni sul gioco (grafica, gameplay, trama)..."></textarea>
+                            <div th:if="${#fields.hasErrors('testo')}" th:errors="*{testo}" class="form-error"></div>
                         </div>
 
-                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                            <button type="submit"
-                                style="background: linear-gradient(135deg, #8e2de2, #4a00e0); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button type="submit" class="btn btn-primary">
                                 Salva Recensione
                             </button>
-
-                            <button type="button" th:if="${recensione?.voto != null}"
-                                onclick="document.getElementById('form-recensione').style.display = 'none'; document.getElementById('recensione-testo').style.display = 'block';"
-                                style="background: transparent; color: #a0a0a0; border: 1px solid rgba(255,255,255,0.2); padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer;">
+                            <button type="button" th:if="${recensione?.voto != null}" class="btn btn-secondary"
+                                    onclick="document.getElementById('form-recensione').style.display = 'none'; document.getElementById('recensione-box').style.display = 'block';">
                                 Annulla
                             </button>
                         </div>
                     </form>
+                </section>
+
+                <div th:unless="${inLibreria}" class="alert alert-info">
+                    <strong>Vuoi lasciare una recensione?</strong> Aggiungi questo gioco alla tua libreria personale per assegnargli un voto e scrivere un commento.
                 </div>
-                <!-- FINE SEZIONE RECENSIONE -->
 
-                <!-- ALTRE RECENSIONI DELLA COMMUNITY -->
-                <div th:if="${altreRecensioni != null and !altreRecensioni.isEmpty()}"
-                    style="margin-top: 3rem; background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                    <h3 style="margin-bottom: 1.5rem; color: #fff;">Recensioni della Community</h3>
-
-                    <div th:each="comm : ${altreRecensioni}"
-                        style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <a th:if="${comm.autore != null}" th:href="@{/utente/{id}(id=${comm.autore.id})}" 
-                                   style="font-weight: bold; color: #fff; text-decoration: none;" th:text="${comm.autore.username}">Username</a>
-                                <span th:if="${comm.autore == null}" style="font-weight: bold; color: #a0a0a0;">Anonimo</span>
-                                <span style="font-size: 1.2rem; font-weight: bold; color: #c471ed;"
-                                    th:text="${comm.voto} + '/10'"></span>
-                            </div>
-                            <!-- Controllo RBAC per Moderazione Amministratore -->
-                            <div sec:authorize="hasRole('ADMIN')">
-                                <form th:action="@{/admin/commento/rimuovi/{id}(id=${comm.id})}" method="post" 
-                                      onsubmit="return confirm('Confermi la cancellazione di questo commento?');" style="margin: 0;">
-                                    <input type="hidden" name="videogiocoId" th:value="${videogioco.id}" />
-                                    <button type="submit" 
-                                            style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">
-                                        🛡️ Modera (Elimina)
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                        <p style="color: rgba(255,255,255,0.8); line-height: 1.5; font-style: italic;"
-                            th:text="${comm.testo}"></p>
-                        <small style="color: #a0a0a0;" th:text="${comm.dataScrittura}"></small>
+                <!-- SEZIONE RECENSIONI DELLA COMMUNITY -->
+                <section class="review-card">
+                    <div class="review-card-header">
+                        <h2 class="review-card-title">Recensioni della Community</h2>
+                        <span class="badge badge-user" th:text="${altreRecensioni != null ? altreRecensioni.size() + ' recensioni' : '0'}">0</span>
                     </div>
-                </div>
+
+                    <div class="community-reviews-list" th:if="${altreRecensioni != null and !altreRecensioni.isEmpty()}">
+                        <article class="community-review-item" th:each="comm : ${altreRecensioni}">
+                            <div class="review-author-bar">
+                                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                    <a th:if="${comm.autore != null}" th:href="@{/utente/{id}(id=${comm.autore.id})}" 
+                                       class="review-author" th:text="${comm.autore.username}">Username</a>
+                                    <span th:if="${comm.autore == null}" class="review-author" style="color: var(--text-faint);">Anonimo</span>
+                                    <span class="badge badge-score" th:text="${comm.voto} + ' / 10'">8 / 10</span>
+                                </div>
+
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <span class="review-date" th:text="${comm.dataScrittura}">Data</span>
+                                    <!-- Moderazione Amministratore RBAC -->
+                                    <div sec:authorize="hasRole('ADMIN')">
+                                        <form th:action="@{/admin/commento/rimuovi/{id}(id=${comm.id})}" method="post"
+                                              onsubmit="return confirm('Confermi l\'eliminazione moderata di questo commento?');" style="margin: 0;">
+                                            <input type="hidden" name="videogiocoId" th:value="${videogioco.id}" />
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                Modera
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="review-text" th:text="${comm.testo}">Testo del commento...</p>
+                        </article>
+                    </div>
+
+                    <p th:if="${altreRecensioni == null or altreRecensioni.isEmpty()}" style="color: var(--text-muted); font-size: 0.9rem;">
+                        Non ci sono ancora altre recensioni per questo videogioco.
+                    </p>
+                </section>
 
             </div>
+
         </div>
 
-    </div>
+    </main>
 
 </body>
 

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catalogo Videogiochi - Game Vault</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
@@ -13,44 +13,60 @@
 
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <div class="container">
-        <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+    <main class="container">
+        <div class="page-header page-header-flex">
             <div>
+                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;">
+                    <span class="badge badge-db">Database Locale JPA</span>
+                    <span class="badge badge-user" th:text="${videogiochi != null ? videogiochi.size() + ' titoli' : '0 titoli'}">0 titoli</span>
+                </div>
                 <h1 class="page-title">Catalogo Videogiochi</h1>
-                <p style="color: var(--text-muted);">Tutti i videogiochi archiviati nel database locale della piattaforma.</p>
+                <p class="page-subtitle">I titoli salvati e gestiti all'interno del database relazionale PostgreSQL.</p>
             </div>
-            <div sec:authorize="hasRole('ADMIN')">
-                <a th:href="@{/admin/videogioco/nuovo}" class="btn btn-primary" style="font-size: 0.9rem;">
-                    + Aggiungi Nuovo Gioco
+
+            <div style="display: flex; gap: 0.75rem;">
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/videogioco/nuovo}" class="btn btn-admin">
+                    + Inserisci Gioco (Admin)
+                </a>
+                <a th:href="@{/rawg/popolari}" class="btn btn-secondary">
+                    Esplora Catalogo RAWG →
                 </a>
             </div>
         </div>
 
         <div class="games-grid" th:if="${videogiochi != null and !videogiochi.empty}">
             <a th:each="gioco : ${videogiochi}" th:href="@{/videogioco/{id}(id=${gioco.id})}" class="game-card">
-                <div class="card-img-container">
+                <div class="card-cover-wrap">
                     <img th:src="${gioco.urlCopertina != null ? gioco.urlCopertina : 'https://via.placeholder.com/600x400?text=Nessuna+Copertina'}"
-                        alt="Cover del gioco" class="card-img">
+                         alt="Cover del gioco" class="card-cover">
                 </div>
-                <div class="card-content">
-                    <h3 class="card-title" th:text="${gioco.titolo}">Nome Gioco</h3>
-                    <div class="card-meta" style="display: flex; justify-content: space-between; align-items: center;">
-                        <span th:text="${gioco.annoUscita != null ? gioco.annoUscita : 'Anno sconosciuto'}">2023</span>
-                        <span th:if="${gioco.commenti != null}" style="color: var(--primary); font-size: 0.85rem;"
-                              th:text="${gioco.commenti.size() + ' recensioni'}">0 recensioni</span>
+                <div class="card-body">
+                    <h2 class="card-title" th:text="${gioco.titolo}">Titolo Gioco</h2>
+                    <div class="card-meta">
+                        <span th:text="${gioco.annoUscita != null ? gioco.annoUscita : 'Anno N/D'}">2023</span>
+                        <span th:if="${gioco.commenti != null and !gioco.commenti.isEmpty()}" 
+                              class="badge badge-score" 
+                              th:text="${gioco.commenti.size() + ' recensioni'}">
+                            0 recensioni
+                        </span>
+                        <span th:unless="${gioco.commenti != null and !gioco.commenti.isEmpty()}" 
+                              style="font-size: 0.78rem; color: var(--text-faint);">
+                            Nessun voto
+                        </span>
                     </div>
                 </div>
             </a>
         </div>
 
-        <div th:if="${videogiochi == null or videogiochi.empty}"
-            style="text-align: center; margin-top: 3rem; color: var(--text-muted); background: var(--surface); padding: 3rem; border-radius: 12px;">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">👾</div>
-            <h2>Nessun videogioco presente nel database locale.</h2>
-            <p style="margin-top: 1rem; margin-bottom: 2rem;">Aggiungi giochi esplorando i titoli RAWG oppure tramite il pannello amministratore!</p>
-            <a href="/rawg/popolari" class="btn btn-primary">Esplora Popolari</a>
+        <div th:if="${videogiochi == null or videogiochi.empty}" class="empty-state">
+            <h3>Nessun videogioco presente nel database locale</h3>
+            <p>I giochi vengono registrati nel DB quando li aggiungi dalla sezione RAWG oppure tramite il pannello amministratore.</p>
+            <div style="display: flex; justify-content: center; gap: 1rem;">
+                <a th:href="@{/rawg/popolari}" class="btn btn-primary">Esplora Giochi Popolari</a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/videogioco/nuovo}" class="btn btn-secondary">+ Inserisci Gioco</a>
+            </div>
         </div>
-    </div>
+    </main>
 
 </body>
 

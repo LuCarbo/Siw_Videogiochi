@@ -11,7 +11,8 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "utente", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "username")
+    @UniqueConstraint(columnNames = "username"),
+    @UniqueConstraint(columnNames = "email")
 })
 public class Utente {
 
@@ -25,7 +26,7 @@ public class Utente {
 
     @NotBlank
     @Email
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @JsonIgnore

@@ -4,61 +4,62 @@
 <body>
 
     <nav class="navbar" th:fragment="navbar">
-        <a href="/" class="navbar-brand">🎮 SiwVideogiochi</a>
-        <div style="display: flex; align-items: center; gap: 2rem; flex: 1; justify-content: flex-end;">
-            <!-- Search Bar -->
-            <div id="react-search-bar" style="width: 100%; max-width: 350px; position: relative;"></div>
+        <!-- Brand -->
+        <a th:href="@{/videogiochi}" class="navbar-brand">
+            <span class="brand-dot"></span>
+            <span>Game Vault</span>
+        </a>
 
-            <div class="nav-links" style="display: flex; align-items: center; gap: 1.25rem;">
-
-                <a href="/rawg/popolari" style="color: var(--primary); font-weight: 500;">Popolari RAWG</a>
-                <a th:href="@{/videogiochi}">Catalogo Giochi</a>
-                <a th:href="@{/utenti}">Community</a>
-                <a sec:authorize="isAuthenticated()" th:href="@{/libreria}">La Mia Libreria</a>
-
-                <!-- Admin Dashboard Link -->
-                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}" 
-                   style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); padding: 0.4rem 0.8rem; border-radius: 6px; font-weight: 600; text-decoration: none;">
-                    🛡️ Admin
-                </a>
-
-                <!-- Anonymous Links -->
-                <a sec:authorize="isAnonymous()" th:href="@{/register}"
-                    style="color: var(--text-muted); text-decoration: none; font-weight: 500;">
-                    Registrati
-                </a>
-                <a sec:authorize="isAnonymous()" th:href="@{/login}"
-                    style="background: var(--primary); color: white; padding: 0.5rem 1.2rem; border-radius: 8px; font-weight: 600; text-decoration: none; transition: 0.2s;">
-                    Login
-                </a>
-
-                <!-- Logged-in Username badge and Logout -->
-                <span sec:authorize="isAuthenticated()" style="color: var(--text-muted); font-size: 0.9rem;" 
-                      sec:authentication="name">Utente</span>
-
-                <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post" style="margin: 0;">
-                    <button type="submit"
-                        style="background: rgba(239, 68, 68, 0.8); border: 1px solid rgba(239, 68, 68, 0.4); color: white; padding: 0.5rem 1.2rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: inherit; font-size: inherit;">
-                        Logout
-                    </button>
-                </form>
-
-            </div>
+        <!-- Center: React Realtime Search Bar -->
+        <div class="navbar-center">
+            <div id="react-search-bar"></div>
         </div>
 
+        <!-- Right: Links & Auth -->
+        <div class="nav-links">
+            <a th:href="@{/videogiochi}" class="nav-link">Catalogo DB</a>
+            <a th:href="@{/rawg/popolari}" class="nav-link">Esplora RAWG</a>
+            <a th:href="@{/utenti}" class="nav-link">Community</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/libreria}" class="nav-link">La Mia Libreria</a>
+
+            <!-- Admin Shortcut -->
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}" class="btn btn-admin btn-sm">
+                Pannello Admin
+            </a>
+
+            <!-- Anonymous Links -->
+            <a sec:authorize="isAnonymous()" th:href="@{/register}" class="nav-link">Registrati</a>
+            <a sec:authorize="isAnonymous()" th:href="@{/login}" class="btn btn-primary btn-sm">Accedi</a>
+
+            <!-- Authenticated User & Logout -->
+            <div sec:authorize="isAuthenticated()" class="user-status">
+                <span sec:authentication="name" style="font-weight: 600;">Utente</span>
+                <span sec:authorize="hasRole('ADMIN')" class="badge badge-admin">Admin</span>
+                <span sec:authorize="!hasRole('ADMIN')" class="badge badge-user">User</span>
+            </div>
+
+            <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="btn btn-secondary btn-sm">
+                    Esci
+                </button>
+            </form>
+        </div>
+
+        <!-- React 18 & Babel Integration for Async Search -->
         <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
         <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
         <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
         <script type="text/babel">
             /*<![CDATA[*/
-            const { useState, useEffect } = React;
+            const { useState, useEffect, useRef } = React;
 
             function SearchBar() {
                 const [search, setSearch] = useState('');
                 const [results, setResults] = useState([]);
                 const [loading, setLoading] = useState(false);
                 const [showDropdown, setShowDropdown] = useState(false);
+                const containerRef = useRef(null);
 
                 useEffect(() => {
                     if (!search.trim()) {
@@ -69,10 +70,21 @@
 
                     const delayDebounceFn = setTimeout(() => {
                         fetchResults();
-                    }, 500);
+                    }, 400);
 
                     return () => clearTimeout(delayDebounceFn);
                 }, [search]);
+
+                // Close dropdown when clicking outside
+                useEffect(() => {
+                    function handleClickOutside(event) {
+                        if (containerRef.current && !containerRef.current.contains(event.target)) {
+                            setShowDropdown(false);
+                        }
+                    }
+                    document.addEventListener('mousedown', handleClickOutside);
+                    return () => document.removeEventListener('mousedown', handleClickOutside);
+                }, []);
 
                 const fetchResults = () => {
                     setLoading(true);
@@ -90,31 +102,96 @@
                 };
 
                 return (
-                    <div style={{ position: 'relative', width: '100%', margin: '0 auto' }}>
-                        <input
-                            type="text"
-                            placeholder="Cerca un gioco..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            onFocus={() => { if (results.length > 0) setShowDropdown(true); }}
-                            onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                            style={{ width: '100%', padding: '0.6rem 1rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.2)', fontSize: '0.95rem', boxSizing: 'border-box', backgroundColor: 'rgba(30, 41, 59, 0.9)', color: '#f8fafc' }}
-                        />
-
-                        {loading && (
-                            <div style={{ position: 'absolute', right: '15px', top: '10px', color: '#cbd5e1', fontSize: '0.9rem' }}>
-                                ...
-                            </div>
-                        )}
+                    <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type="text"
+                                placeholder="Cerca un gioco (RAWG)..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                onFocus={() => { if (results.length > 0) setShowDropdown(true); }}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.45rem 0.85rem',
+                                    paddingRight: loading ? '2rem' : '0.85rem',
+                                    borderRadius: '6px',
+                                    border: '1px solid #2d3b55',
+                                    fontSize: '0.88rem',
+                                    boxSizing: 'border-box',
+                                    backgroundColor: '#0e1626',
+                                    color: '#f8fafc',
+                                    outline: 'none'
+                                }}
+                            />
+                            {loading && (
+                                <span style={{
+                                    position: 'absolute',
+                                    right: '8px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    color: '#94a3b8',
+                                    fontSize: '0.75rem'
+                                }}>
+                                    ...
+                                </span>
+                            )}
+                        </div>
 
                         {showDropdown && results.length > 0 && (
-                            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: 'rgba(30, 41, 59, 0.95)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)', zIndex: 1000, maxHeight: '400px', overflowY: 'auto', marginTop: '4px', backdropFilter: 'blur(8px)' }}>
+                            <div style={{
+                                position: 'absolute',
+                                top: 'calc(100% + 4px)',
+                                left: 0,
+                                right: 0,
+                                backgroundColor: '#131b2e',
+                                borderRadius: '8px',
+                                border: '1px solid #2d3b55',
+                                boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+                                zIndex: 1000,
+                                maxHeight: '360px',
+                                overflowY: 'auto'
+                            }}>
                                 {results.map(gioco => (
-                                    <a key={gioco.id} href={`/rawg/gioco/${gioco.id}`} style={{ display: 'flex', alignItems: 'center', padding: '10px', textDecoration: 'none', color: '#f8fafc', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', transition: 'background-color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                                        <img src={gioco.background_image || 'https://via.placeholder.com/40x40'} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', marginRight: '12px' }} />
-                                        <div>
-                                            <div style={{ fontWeight: '600', fontSize: '0.95rem', marginBottom: '2px' }}>{gioco.name}</div>
-                                            <div style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>{gioco.released || 'N/A'}</div>
+                                    <a
+                                        key={gioco.id}
+                                        href={`/rawg/gioco/${gioco.id}`}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: '8px 12px',
+                                            textDecoration: 'none',
+                                            color: '#f8fafc',
+                                            borderBottom: '1px solid #1e293d',
+                                            transition: 'background-color 0.15s ease'
+                                        }}
+                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1a233a'}
+                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                    >
+                                        <img
+                                            src={gioco.background_image || 'https://via.placeholder.com/40x40?text=?'}
+                                            alt=""
+                                            style={{
+                                                width: '38px',
+                                                height: '38px',
+                                                objectFit: 'cover',
+                                                borderRadius: '4px',
+                                                marginRight: '10px',
+                                                flexShrink: 0
+                                            }}
+                                        />
+                                        <div style={{ minWidth: 0, flex: 1 }}>
+                                            <div style={{
+                                                fontWeight: '600',
+                                                fontSize: '0.88rem',
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis'
+                                            }}>
+                                                {gioco.name}
+                                            </div>
+                                            <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                                                {gioco.released ? gioco.released.substring(0, 4) : 'N/A'}
+                                            </div>
                                         </div>
                                     </a>
                                 ))}

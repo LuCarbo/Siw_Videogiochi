@@ -147,6 +147,23 @@ public class VideogiocoLibreriaService {
     }
 
     @Transactional
+    public void aggiungiVideogiocoALibreria(Long utenteId, Long videogiocoId) {
+        if (utenteId == null || videogiocoId == null) {
+            return;
+        }
+        Utente utente = utenteRepository.findById(utenteId).orElse(null);
+        Videogioco videogioco = videogiocoRepository.findById(videogiocoId).orElse(null);
+
+        if (utente != null && videogioco != null && !videogiocoLibreriaRepository.existsByUtenteAndVideogioco(utente, videogioco)) {
+            VideogiocoLibreria nuovaAggiunta = new VideogiocoLibreria();
+            nuovaAggiunta.setUtente(utente);
+            nuovaAggiunta.setVideogioco(videogioco);
+            nuovaAggiunta.setDataAggiunta(LocalDate.now());
+            videogiocoLibreriaRepository.save(nuovaAggiunta);
+        }
+    }
+
+    @Transactional
     public void save(VideogiocoLibreria videogiocoLibreria) {
         if (videogiocoLibreria.getDataAggiunta() == null) {
             videogiocoLibreria.setDataAggiunta(LocalDate.now());

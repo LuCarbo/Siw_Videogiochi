@@ -41,6 +41,10 @@ public class AuthController {
             bindingResult.rejectValue("username", "error.username", "Nome utente già occupato da un altro account");
         }
 
+        if (utenteService.existsByEmail(form.getEmail())) {
+            bindingResult.rejectValue("email", "error.email", "Indirizzo email già registrato su un altro account");
+        }
+
         if (bindingResult.hasErrors()) {
             return "register";
         }

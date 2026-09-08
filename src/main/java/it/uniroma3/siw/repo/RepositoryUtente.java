@@ -9,5 +9,8 @@ import it.uniroma3.siw.model.Utente;
 public interface RepositoryUtente extends CrudRepository<Utente, Long>{
 	
 	Optional<Utente> findByUsername(String username);
-		
+	
+	Optional<Utente> findByEmail(String email);
+
+	boolean existsByEmail(String email);
 }

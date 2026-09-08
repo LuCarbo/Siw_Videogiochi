@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${gioco != null ? gioco.name : 'Dettagli Gioco'}">Dettagli Gioco</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
+    <title th:text="${gioco != null ? gioco.name + ' - RAWG Dettagli' : 'Dettagli Gioco'}">Dettagli Gioco</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
@@ -14,130 +13,118 @@
 
     <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <div class="container" th:if="${gioco != null}">
-        <div class="detail-hero">
-            <img th:src="${gioco.background_image != null ? gioco.background_image : 'https://via.placeholder.com/1200x600?text=No+Image'}"
-                alt="Background del gioco" class="detail-bg">
-            <div class="detail-overlay">
-                <div class="detail-info">
-                    <h1 class="detail-title" th:text="${gioco.name}">Nome Gioco</h1>
-                    <div class="detail-meta">
-                        <div>
-                            <strong>Data Rilascio:</strong> <span
-                                th:text="${gioco.released != null ? gioco.released : 'Sconosciuta'}">N/A</span>
-                        </div>
-                    </div>
+    <main class="container">
 
+        <!-- Breadcrumb per l'esame -->
+        <nav class="breadcrumb">
+            <a th:href="@{/rawg/popolari}">Esplora RAWG</a>
+            <span class="breadcrumb-sep">/</span>
+            <span th:text="${gioco != null ? gioco.name : 'Dettagli'}">Titolo</span>
+        </nav>
 
-                    <div style="margin-top: 2rem; display: flex; gap: 2rem;">
-
-                        <!-- Torna ai Popolari -->
-                        <a href="/rawg/popolari" class="btn"
-                            style="flex: 1; text-align: center; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">
-                            Torna ai Popolari
-                        </a>
-
-
-                        <!-- Aggiungi alla Libreria -->
-                        <form th:unless="${isInLibreria}" th:action="@{/libreria/aggiungiDaRawg}" method="post"
-                            style="flex: 1; margin: 0; display: flex;">
-                            <input type="hidden" name="rawgId" th:value="${gioco.id}" />
-                            <button type="submit" class="btn btn-primary" style="flex: 1; text-align: center;">
-                                Aggiungi alla Libreria
-                            </button>
-                        </form>
-
-                        <!-- Già in libreria -->
-                        <button th:if="${isInLibreria}" class="btn btn-primary"
-                            style="flex: 1; text-align: center; opacity: 0.8; cursor: default;" disabled>
-                            Gioco già Aggiunto
-                        </button>
-
-                    </div>
-                </div>
-            </div>
+        <div th:if="${gioco == null}" class="empty-state">
+            <h3>Scheda di gioco non trovata</h3>
+            <p>Le API di RAWG non hanno restituito informazioni per questo identificativo.</p>
+            <a th:href="@{/rawg/popolari}" class="btn btn-primary">Torna a Esplora RAWG</a>
         </div>
 
-        <div class="detail-content"
-            style="margin-top: 2rem; background: var(--surface); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow);">
+        <div th:if="${gioco != null}" class="detail-layout">
 
-            <div class="additional-info" style="display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap;">
-                <div th:if="${gioco.metacritic != null}" class="info-card"
-                    style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: 12px; flex: 1; min-width: 200px;">
-                    <h3
-                        style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
-                        Metacritic</h3>
-                    <div style="font-size: 2rem; font-weight: 800; color: #6dc849;" th:text="${gioco.metacritic}">90
+            <!-- Colonna Sinistra: Cover & Azione Salvataggio nel DB Locale -->
+            <aside class="detail-aside">
+                <img th:src="${gioco.background_image != null ? gioco.background_image : 'https://via.placeholder.com/600x400?text=No+Image'}"
+                     alt="Cover" class="detail-cover">
+
+                <!-- Form per Aggiungere il Titolo RAWG alla Libreria Personale (e al DB Locale) -->
+                <form th:unless="${isInLibreria}" th:action="@{/libreria/aggiungiDaRawg}" method="post" sec:authorize="isAuthenticated()">
+                    <input type="hidden" name="rawgId" th:value="${gioco.id}" />
+                    <button type="submit" class="btn btn-primary btn-full">
+                        + Salva nella Mia Libreria Locale
+                    </button>
+                </form>
+
+                <div th:if="${isInLibreria}">
+                    <div class="alert alert-success" style="text-align: center; margin: 0;">
+                        ✓ Già presente nella tua libreria
                     </div>
                 </div>
 
-                <div th:if="${gioco.playtime != null && gioco.playtime > 0}" class="info-card"
-                    style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: 12px; flex: 1; min-width: 200px;">
-                    <h3
-                        style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
-                        Tempo di Gioco</h3>
-                    <div style="font-size: 2rem; font-weight: 800; color: var(--primary);">
-                        <span th:text="${gioco.playtime}">10</span> <span
-                            style="font-size: 1rem; color: var(--text-muted); font-weight: normal;">ore</span>
-                    </div>
-                </div>
-
-                <div th:if="${gioco.website != null && !gioco.website.isEmpty()}" class="info-card"
-                    style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: 12px; flex: 1; min-width: 200px;">
-                    <h3
-                        style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
-                        Sito Web</h3>
-                    <a th:href="${gioco.website}" target="_blank" class="btn"
-                        style="display: inline-block; margin-top: 0.5rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; width: 100%; text-align: center; box-sizing: border-box;">Visita
-                        il sito</a>
-                </div>
-            </div>
-
-            <div th:if="${gioco.description_raw != null && !gioco.description_raw.isEmpty()}">
-                <h2
-                    style="margin-bottom: 1rem; font-size: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.5rem;">
-                    Descrizione</h2>
-                <p style="color: var(--text-muted); line-height: 1.8; white-space: pre-wrap;"
-                    th:text="${gioco.description_raw}"></p>
-            </div>
-
-            <!-- Negozi / Store -->
-            <div th:if="${gioco.stores != null && !gioco.stores.isEmpty()}" style="margin-top: 2rem;">
-                <h2
-                    style="margin-bottom: 1rem; font-size: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.5rem;">
-                    Acquista il Gioco</h2>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <a th:each="storeWrapper : ${gioco.stores}" th:if="${storeWrapper.store != null}"
-                        th:href="${storeWrapper.url}" target="_blank" class="btn"
-                        style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; transition: all 0.2s ease;">
-                        Acquista su <strong th:text="${storeWrapper.store.name}">Store</strong>
+                <div sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" class="btn btn-secondary btn-full">
+                        Accedi per salvare nella libreria
                     </a>
                 </div>
-            </div>
 
-            <!-- Screenshots -->
-            <div th:if="${gioco.screenshots != null && !gioco.screenshots.isEmpty()}" style="margin-top: 2rem;">
-                <h2
-                    style="margin-bottom: 1rem; font-size: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.5rem;">
-                    Screenshots</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
-                    <img th:each="screenshot : ${gioco.screenshots}" th:src="${screenshot}" alt="Screenshot"
-                        style="width: 100%; border-radius: 8px; box-shadow: var(--shadow); object-fit: cover; aspect-ratio: 16/9; transition: transform 0.2s ease;"
-                        onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" />
+                <!-- Schede Metadati Tecnici -->
+                <div class="description-box" style="padding: 1.25rem;">
+                    <div style="margin-bottom: 0.75rem;">
+                        <span class="form-label" style="margin-bottom: 0.2rem;">Data di Uscita</span>
+                        <strong th:text="${gioco.released != null ? gioco.released : 'Sconosciuta'}">N/A</strong>
+                    </div>
+
+                    <div th:if="${gioco.metacritic != null}" style="margin-bottom: 0.75rem;">
+                        <span class="form-label" style="margin-bottom: 0.2rem;">Metacritic Score</span>
+                        <span class="badge badge-score" th:text="${gioco.metacritic}">90</span>
+                    </div>
+
+                    <div th:if="${gioco.playtime != null && gioco.playtime > 0}" style="margin-bottom: 0.75rem;">
+                        <span class="form-label" style="margin-bottom: 0.2rem;">Tempo Medio Stimato</span>
+                        <strong th:text="${gioco.playtime} + ' ore'">10 ore</strong>
+                    </div>
+
+                    <div th:if="${gioco.website != null && !gioco.website.isEmpty()}">
+                        <span class="form-label" style="margin-bottom: 0.2rem;">Sito Web Ufficiale</span>
+                        <a th:href="${gioco.website}" target="_blank" rel="noopener noreferrer" 
+                           style="color: var(--primary); font-size: 0.88rem; word-break: break-all;">
+                            Visita il sito esterno →
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Colonna Destra: Informazioni e Store -->
+            <div class="detail-content">
+                <div>
+                    <div class="detail-tags" style="margin-bottom: 0.5rem;">
+                        <span class="badge badge-api">Dati API RAWG</span>
+                        <span th:if="${gioco.released != null}" class="badge badge-user" th:text="${gioco.released.substring(0,4)}">2023</span>
+                    </div>
+                    <h1 class="detail-title" th:text="${gioco.name}">Nome Videogioco</h1>
+                </div>
+
+                <!-- Descrizione da RAWG -->
+                <div class="description-box">
+                    <h2 class="description-title">Descrizione</h2>
+                    <p class="description-text" th:text="${gioco.description_raw != null && !gioco.description_raw.isEmpty() ? gioco.description_raw : 'Nessuna descrizione testuale disponibile da RAWG.'}">
+                        Descrizione...
+                    </p>
+                </div>
+
+                <!-- Link Store Ufficiali -->
+                <div class="description-box" th:if="${gioco.stores != null && !gioco.stores.isEmpty()}">
+                    <h2 class="description-title">Piattaforme di Acquisto Ufficiali</h2>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.75rem;">
+                        <a th:each="storeWrapper : ${gioco.stores}" th:if="${storeWrapper.store != null}"
+                           th:href="${storeWrapper.url != null ? storeWrapper.url : '#'}" target="_blank" rel="noopener noreferrer"
+                           class="btn btn-secondary btn-sm">
+                            <span th:text="${storeWrapper.store.name}">Steam</span> ↗
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Galleria Screenshot -->
+                <div class="description-box" th:if="${gioco.screenshots != null && !gioco.screenshots.isEmpty()}">
+                    <h2 class="description-title">Screenshot</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin-top: 0.75rem;">
+                        <img th:each="screenshot : ${gioco.screenshots}" th:src="${screenshot}" alt="Screenshot"
+                             style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);" />
+                    </div>
                 </div>
             </div>
 
         </div>
-    </div>
 
-    <div class="container" th:if="${gioco == null}">
-        <div class="page-header">
-            <h1 class="page-title">Gioco non trovato</h1>
-            <p style="color: var(--text-muted);">Impossibile recuperare i dettagli per questo gioco. L'API RAWG potrebbe
-                non aver restituito risultati.</p>
-            <a href="/rawg/popolari" class="btn btn-primary" style="margin-top: 2rem;">Torna indietro</a>
-        </div>
-    </div>
+    </main>
 
 </body>
 

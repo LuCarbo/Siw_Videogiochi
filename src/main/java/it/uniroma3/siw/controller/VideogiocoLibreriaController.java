@@ -40,9 +40,16 @@ public class VideogiocoLibreriaController {
 
     // Questa rotta gestisce il salvataggio di un nuovo gioco nella libreria
     @PostMapping("/libreria/aggiungi")
-    public String addVideogiocoLibreria(@ModelAttribute VideogiocoLibreria videogiocoLibreria) {
-        videogiocoLibreriaService.save(videogiocoLibreria);
-        return "redirect:/videogioco/" + videogiocoLibreria.getVideogioco().getId();
+    public String addVideogiocoLibreria(@RequestParam("videogiocoId") Long videogiocoId) {
+        Long idUtenteAttuale = utenteService.getCurrentUserId();
+        if (idUtenteAttuale == null) {
+            return "redirect:/login";
+        }
+        if (videogiocoId != null) {
+            videogiocoLibreriaService.aggiungiVideogiocoALibreria(idUtenteAttuale, videogiocoId);
+            return "redirect:/videogioco/" + videogiocoId;
+        }
+        return "redirect:/videogiochi";
     }
 
     // Questa rotta gestisce l'aggiunta di un gioco proveniente dalle API di RAWG
