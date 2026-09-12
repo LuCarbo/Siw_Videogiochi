@@ -14,6 +14,8 @@ import it.uniroma3.siw.repo.RepositoryUtente;
 import it.uniroma3.siw.repo.RepositoryVideogioco;
 import it.uniroma3.siw.repo.RepositoryVideogiocoLibreria;
 
+import it.uniroma3.siw.service.RawgApiService;
+
 import java.time.LocalDate;
 
 @Component
@@ -24,17 +26,20 @@ public class InitData implements CommandLineRunner {
     private final RepositoryVideogioco videogiocoRepository;
     private final RepositoryVideogiocoLibreria videogiocoLibreriaRepository;
     private final RepositoryCommento commentoRepository;
+    private final RawgApiService rawgApiService;
 
     public InitData(RepositoryUtente utenteRepository,
                     PasswordEncoder passwordEncoder,
                     RepositoryVideogioco videogiocoRepository,
                     RepositoryVideogiocoLibreria videogiocoLibreriaRepository,
-                    RepositoryCommento commentoRepository) {
+                    RepositoryCommento commentoRepository,
+                    RawgApiService rawgApiService) {
         this.utenteRepository = utenteRepository;
         this.passwordEncoder = passwordEncoder;
         this.videogiocoRepository = videogiocoRepository;
         this.videogiocoLibreriaRepository = videogiocoLibreriaRepository;
         this.commentoRepository = commentoRepository;
+        this.rawgApiService = rawgApiService;
     }
 
     @Override
@@ -111,5 +116,13 @@ public class InitData implements CommandLineRunner {
             vlAdmin.setDataAggiunta(LocalDate.now());
             videogiocoLibreriaRepository.save(vlAdmin);
         }
+
+        // Pre-riscaldamento asincrono della cache del catalogo RAWG per garantire caricamenti istantanei
+        new Thread(() -> {
+            try {
+                rawgApiService.getGamesResponseWithFilters(null, "all", "-added", 1);
+            } catch (Exception ignored) {
+            }
+        }, "rawg-cache-warmer").start();
     }
 }

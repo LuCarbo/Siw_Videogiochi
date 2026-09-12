@@ -7,6 +7,8 @@ import java.util.Objects;
 @Entity
 @Table(name = "videogioco_libreria", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"utente_id", "videogioco_id"})
+}, indexes = {
+    @Index(name = "idx_vl_videogioco", columnList = "videogioco_id")
 })
 public class VideogiocoLibreria {
 

@@ -36,7 +36,7 @@ public class VideogiocoService {
 
     @Transactional(readOnly = true)
     public List<Videogioco> findAll() {
-        return videogiocoRepository.findAll();
+        return videogiocoRepository.findAllWithCommenti();
     }
 
     @Transactional

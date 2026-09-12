@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Vault - Piattaforma e Diario Videoludico</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Game Vault - Catalogo e Collezione Videogiochi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
@@ -15,71 +15,44 @@
 
     <main class="container">
 
-        <!-- Hero Section -->
+        <!-- Sezione Introduttiva -->
         <section class="hero-section">
-            <div class="hero-tag">
-                <span class="badge badge-user">Progetto SIW • Piattaforma Gaming</span>
-            </div>
-            <h1 class="hero-title">
-                Il tuo catalogo e diario <span>videoludico</span>
-            </h1>
+            <h1 class="hero-title">Game Vault</h1>
             <p class="hero-description">
-                Benvenuto su Game Vault. Esplora migliaia di titoli popolari, gestisci la tua collezione personale
-                e condividi recensioni e voti con la community di videogiocatori.
+                Catalogo videoludico e diario personale. Cerca nuovi titoli, organizza la tua collezione e consulta le recensioni della community.
             </p>
             <div class="hero-actions">
                 <a th:href="@{/rawg/popolari}" class="btn btn-primary">
-                    🎮 Esplora Catalogo Giochi
-                </a>
-                <a sec:authorize="isAnonymous()" th:href="@{/login}" class="btn btn-secondary">
-                    Accedi alla Piattaforma
+                    Esplora catalogo
                 </a>
                 <a sec:authorize="isAuthenticated()" th:href="@{/libreria}" class="btn btn-secondary">
-                    📚 La Mia Libreria
+                    La mia libreria
                 </a>
-            </div>
-        </section>
-
-        <!-- Features Grid -->
-        <section class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">🎮</div>
-                <h3 class="feature-title">Esplorazione & Ricerca</h3>
-                <p class="feature-text">
-                    Sfoglia un catalogo sterminato di videogiochi, applica filtri per data o popolarità e trova subito qualsiasi titolo tramite la ricerca in tempo reale.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">📚</div>
-                <h3 class="feature-title">Collezione Personale</h3>
-                <p class="feature-text">
-                    Crea il tuo profilo e costruisci la tua libreria personale salvando i giochi che possiedi o che stai giocando per ritrovarli facilmente.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">⭐</div>
-                <h3 class="feature-title">Recensioni & Community</h3>
-                <p class="feature-text">
-                    Condividi le tue opinioni assegnando un voto da 1 a 10 ai titoli in libreria e consulta i profili e le valutazioni lasciate dagli altri utenti.
-                </p>
+                <a sec:authorize="isAnonymous()" th:href="@{/login}" class="btn btn-secondary">
+                    Accedi
+                </a>
+                <a sec:authorize="isAnonymous()" th:href="@{/register}" class="btn btn-secondary">
+                    Registrati
+                </a>
+                <a th:href="@{/videogiochi}" class="btn btn-secondary">
+                    Catalogo locale
+                </a>
             </div>
         </section>
 
         <!-- Titoli in Evidenza -->
-        <section th:if="${giochiInEvidenza != null and !giochiInEvidenza.empty}" style="margin-bottom: 3.5rem;">
+        <section style="margin-bottom: 3rem;">
             <div class="showcase-header">
                 <div>
-                    <h2 class="page-title" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Titoli in Evidenza</h2>
-                    <p class="page-subtitle">Alcuni dei giochi registrati nella piattaforma</p>
+                    <h2 class="page-title" style="font-size: 1.35rem; margin-bottom: 0.25rem;">Titoli in evidenza</h2>
+                    <p class="page-subtitle">Videogiochi registrati nel database locale</p>
                 </div>
-                <a th:href="@{/rawg/popolari}" class="btn btn-secondary btn-sm">
-                    Vedi tutti i giochi →
+                <a th:href="@{/videogiochi}" class="btn btn-secondary btn-sm">
+                    Tutti i titoli &rarr;
                 </a>
             </div>
 
-            <div class="games-grid">
+            <div class="games-grid" th:if="${giochiInEvidenza != null and !giochiInEvidenza.empty}">
                 <a th:each="gioco : ${giochiInEvidenza}" th:href="@{/videogioco/{id}(id=${gioco.id})}" class="game-card">
                     <div class="card-cover-wrap">
                         <img th:src="${gioco.urlCopertina != null && !gioco.urlCopertina.isEmpty() ? gioco.urlCopertina : '/images/placeholder.svg'}"
@@ -90,9 +63,42 @@
                         <h3 class="card-title" th:text="${gioco.titolo}">Titolo</h3>
                         <div class="card-meta">
                             <span th:text="${gioco.annoUscita != null ? gioco.annoUscita : 'Anno N/D'}">2023</span>
-                            <span style="font-size: 0.8rem; color: var(--primary);">Scheda e recensioni →</span>
+                            <span style="font-size: 0.8rem; color: var(--primary);">Scheda e recensioni &rarr;</span>
                         </div>
                     </div>
+                </a>
+            </div>
+
+            <div th:if="${giochiInEvidenza == null or giochiInEvidenza.empty}" class="empty-state">
+                <h3>Nessun titolo registrato</h3>
+                <p>Non ci sono ancora videogiochi nel database locale. Inizia esplorando il catalogo completo per consultare titoli e aggiungerli alla tua collezione.</p>
+                <a th:href="@{/rawg/popolari}" class="btn btn-primary">Vai al catalogo</a>
+            </div>
+        </section>
+
+        <!-- Sezioni Rapide -->
+        <section style="margin-bottom: 2.5rem;">
+            <h2 class="page-title" style="font-size: 1.15rem; margin-bottom: 1rem;">Navigazione rapida</h2>
+            <div class="features-grid">
+                <a th:href="@{/rawg/popolari}" class="feature-card">
+                    <h3 class="feature-title">Catalogo globale</h3>
+                    <p class="feature-text">
+                        Sfoglia migliaia di videogiochi con filtri per data di uscita, popolarità e voti Metacritic.
+                    </p>
+                </a>
+
+                <a th:href="@{/libreria}" class="feature-card">
+                    <h3 class="feature-title">Libreria personale</h3>
+                    <p class="feature-text">
+                        Gestisci i tuoi titoli salvati, tieni traccia dello stato di avanzamento e lascia valutazioni.
+                    </p>
+                </a>
+
+                <a th:href="@{/utenti}" class="feature-card">
+                    <h3 class="feature-title">Community utenti</h3>
+                    <p class="feature-text">
+                        Consulta i profili degli altri utenti registrati e visualizza le loro collezioni.
+                    </p>
                 </a>
             </div>
         </section>

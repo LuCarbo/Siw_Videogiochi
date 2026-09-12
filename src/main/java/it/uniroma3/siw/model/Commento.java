@@ -12,6 +12,8 @@ import java.util.Objects;
 @Entity
 @Table(name = "commento", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"autore_id", "videogioco_id"})
+}, indexes = {
+    @Index(name = "idx_commento_videogioco", columnList = "videogioco_id")
 })
 public class Commento {
 

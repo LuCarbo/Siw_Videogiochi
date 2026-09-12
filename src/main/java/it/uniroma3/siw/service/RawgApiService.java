@@ -1,6 +1,7 @@
 package it.uniroma3.siw.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -32,6 +33,7 @@ public class RawgApiService {
     }
 
     // Recupera una lista dei giochi più popolari (o aggiunti di recente).
+    @Cacheable("rawgPopolari")
     public List<RawgGameDTO> getPopularGames() {
         return fetchGamesList(UriComponentsBuilder.fromUriString(baseUrl)
                 .path("/games")
@@ -53,6 +55,7 @@ public class RawgApiService {
     }
 
     // Recupera la risposta completa paginata da RAWG con filtri avanzati.
+    @Cacheable("rawgCatalogo")
     public RawgResponseDTO getGamesResponseWithFilters(String query, String dlcFilter, String ordering, Integer page) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(baseUrl)
                 .path("/games")
@@ -116,6 +119,7 @@ public class RawgApiService {
 
     
     // Recupera i dettagli completi di un singolo gioco tramite il suo ID di RAWG.
+    @Cacheable("rawgDettagli")
     public RawgGameDTO getGameDetails(Long rawgId) {
         String url = UriComponentsBuilder.fromUriString(baseUrl)
                 .path("/games/" + rawgId)
