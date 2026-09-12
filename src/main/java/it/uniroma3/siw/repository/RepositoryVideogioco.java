@@ -19,4 +19,8 @@ public interface RepositoryVideogioco extends JpaRepository<Videogioco, Long> {
 
     Optional<Videogioco> findByRawgId(Long rawgId);
 
+    boolean existsByTitoloIgnoreCase(String titolo);
+
+    boolean existsByTitoloIgnoreCaseAndIdNot(String titolo, Long id);
+
 }

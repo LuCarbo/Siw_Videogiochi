@@ -1,5 +1,6 @@
 package it.uniroma3.siw.controller;
 
+import it.uniroma3.siw.exception.DuplicateEntityException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,19 +38,20 @@ public class AuthController {
             bindingResult.rejectValue("confirmPassword", "error.confirmPassword", "Le password non coincidono");
         }
 
-        if (utenteService.existsByUsername(form.getUsername())) {
-            bindingResult.rejectValue("username", "error.username", "Nome utente già occupato da un altro account");
-        }
-
-        if (utenteService.existsByEmail(form.getEmail())) {
-            bindingResult.rejectValue("email", "error.email", "Indirizzo email già registrato su un altro account");
-        }
-
         if (bindingResult.hasErrors()) {
             return "register";
         }
 
-        utenteService.registraNuovoUtente(form, passwordEncoder);
-        return "redirect:/login?registered=true";
+        try {
+            utenteService.registraNuovoUtente(form, passwordEncoder);
+            return "redirect:/login?registered=true";
+        } catch (DuplicateEntityException e) {
+            if (e.getFieldName() != null) {
+                bindingResult.rejectValue(e.getFieldName(), "error." + e.getFieldName(), e.getMessage());
+            } else {
+                bindingResult.reject("error.registration", e.getMessage());
+            }
+            return "register";
+        }
     }
 }

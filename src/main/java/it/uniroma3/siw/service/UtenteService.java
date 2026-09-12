@@ -1,5 +1,6 @@
 package it.uniroma3.siw.service;
 
+import it.uniroma3.siw.exception.DuplicateEntityException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -113,6 +114,12 @@ public class UtenteService {
 
     @Transactional
     public Utente registraNuovoUtente(RegistrazioneForm form, PasswordEncoder passwordEncoder) {
+        if (existsByUsername(form.getUsername().trim())) {
+            throw new DuplicateEntityException("username", "Nome utente già occupato da un altro account");
+        }
+        if (existsByEmail(form.getEmail().trim())) {
+            throw new DuplicateEntityException("email", "Indirizzo email già registrato su un altro account");
+        }
         Utente nuovo = new Utente();
         nuovo.setUsername(form.getUsername().trim());
         nuovo.setEmail(form.getEmail().trim());

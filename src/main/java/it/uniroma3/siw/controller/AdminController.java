@@ -1,5 +1,6 @@
 package it.uniroma3.siw.controller;
 
+import it.uniroma3.siw.exception.DuplicateEntityException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -57,8 +58,17 @@ public class AdminController {
         videogioco.setDescrizione(form.getDescrizione());
         videogioco.setUrlCopertina(form.getUrlCopertina());
 
-        videogioco = videogiocoService.save(videogioco);
-        return "redirect:/videogioco/" + videogioco.getId();
+        try {
+            videogioco = videogiocoService.save(videogioco);
+            return "redirect:/videogioco/" + videogioco.getId();
+        } catch (DuplicateEntityException e) {
+            if (e.getFieldName() != null) {
+                bindingResult.rejectValue(e.getFieldName(), "error." + e.getFieldName(), e.getMessage());
+            } else {
+                bindingResult.reject("error.videogioco", e.getMessage());
+            }
+            return "admin/nuovoVideogioco";
+        }
     }
 
     @PostMapping("/videogioco/elimina/{id}")

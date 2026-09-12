@@ -1,6 +1,6 @@
 package it.uniroma3.siw.service;
 
-
+import it.uniroma3.siw.exception.DuplicateEntityException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +21,16 @@ public class VideogiocoService {
 
     @Transactional
     public Videogioco save(Videogioco videogioco) {
+        if (videogioco.getTitolo() != null) {
+            String titoloTrim = videogioco.getTitolo().trim();
+            videogioco.setTitolo(titoloTrim);
+            boolean exists = (videogioco.getId() == null)
+                    ? videogiocoRepository.existsByTitoloIgnoreCase(titoloTrim)
+                    : videogiocoRepository.existsByTitoloIgnoreCaseAndIdNot(titoloTrim, videogioco.getId());
+            if (exists) {
+                throw new DuplicateEntityException("titolo", "Esiste già un videogioco con questo titolo");
+            }
+        }
         return videogiocoRepository.save(videogioco);
     }
 
