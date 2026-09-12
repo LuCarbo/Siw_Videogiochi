@@ -1,5 +1,5 @@
 # ==============================================================================
-# Multi-stage Dockerfile per Game Vault (Spring Boot 3 + Java 21)
+# Multi-stage Dockerfile per SIW Videogiochi (Spring Boot 3 + Java 21)
 # ==============================================================================
 
 # Stage 1: Build dell'applicazione

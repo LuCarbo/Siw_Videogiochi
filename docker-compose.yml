@@ -1,7 +1,7 @@
 services:
   postgres-db:
     image: postgres:alpine
-    container_name: gamevault-postgres
+    container_name: siw_videogiochi-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: videogiochi
@@ -17,9 +17,9 @@ services:
       timeout: 5s
       retries: 5
 
-  gamevault-app:
+  siw_videogiochi-app:
     build: .
-    container_name: gamevault-app
+    container_name: siw_videogiochi-app
     restart: unless-stopped
     depends_on:
       postgres-db:

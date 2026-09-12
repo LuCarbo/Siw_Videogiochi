@@ -1,5 +1,5 @@
 /* ==========================================================================
-   GAME VAULT - Clean Slate Design System (Anti-AI Aesthetic)
+   SIW VIDEOGIOCHI - Clean Slate Design System (Anti-AI Aesthetic)
    Sistemi Informativi su Web (SIW)
    ========================================================================== */
 
@@ -1126,14 +1126,4 @@ img {
   margin-bottom: 1.5rem;
   border-bottom: 1px solid var(--border-subtle);
   padding-bottom: 1rem;
-}
-
-.footer-bar {
-  border-top: 1px solid var(--border-subtle);
-  background-color: var(--bg-surface);
-  padding: 1.5rem 2rem;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  margin-top: auto;
 }

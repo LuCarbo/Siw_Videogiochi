@@ -7,7 +7,7 @@
         <!-- Brand -->
         <a th:href="@{/}" class="navbar-brand">
             <span class="brand-dot"></span>
-            <span>Game Vault</span>
+            <span>SIW Videogiochi</span>
         </a>
 
         <!-- Center: React Realtime Search Bar -->
@@ -33,7 +33,8 @@
 
             <!-- Authenticated User & Logout -->
             <div sec:authorize="isAuthenticated()" class="user-status">
-                <span sec:authentication="name" style="font-weight: 600;">Utente</span>
+                <span style="font-weight: 600;"
+                      th:text="${@securityConfig.userDisplayName}">Utente</span>
                 <span sec:authorize="hasRole('ADMIN')" class="badge badge-admin">Admin</span>
                 <span sec:authorize="!hasRole('ADMIN')" class="badge badge-user">User</span>
             </div>

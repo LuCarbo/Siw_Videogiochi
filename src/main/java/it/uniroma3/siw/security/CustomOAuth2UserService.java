@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import it.uniroma3.siw.model.Utente;
-import it.uniroma3.siw.repo.RepositoryUtente;
+import it.uniroma3.siw.repository.RepositoryUtente;
 
 import java.time.LocalDate;
 import java.util.HashSet;

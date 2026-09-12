@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${status != null ? 'Errore ' + status + ' - Game Vault' : 'Si è verificato un errore - Game Vault'}">Errore - Game Vault</title>
+    <title th:text="${status != null ? 'Errore ' + status + ' - SIW Videogiochi' : 'Si è verificato un errore - SIW Videogiochi'}">Errore - SIW Videogiochi</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -21,7 +21,7 @@
                 Si è verificato un errore
             </h1>
             <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 1.5rem;"
-               th:text="${message != null and !message.isEmpty() ? message : (status == 404 ? 'La risorsa o pagina richiesta non è stata trovata.' : 'Si è verificato un errore imprevisto durante l\'elaborazione della richiesta.')}">
+               th:text="${message != null and !message.isEmpty() ? message : (status == 404 ? 'La risorsa o pagina richiesta non è stata trovata.' : 'Si è verificato un errore imprevisto nel server.')}">
                 La pagina che stai cercando non esiste o si è verificato un problema sul server.
             </p>
 

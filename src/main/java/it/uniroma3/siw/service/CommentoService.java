@@ -3,9 +3,10 @@ package it.uniroma3.siw.service;
 import it.uniroma3.siw.model.Commento;
 import it.uniroma3.siw.model.Utente;
 import it.uniroma3.siw.model.Videogioco;
-import it.uniroma3.siw.repo.RepositoryCommento;
-import it.uniroma3.siw.repo.RepositoryUtente;
-import it.uniroma3.siw.repo.RepositoryVideogioco;
+import it.uniroma3.siw.repository.RepositoryCommento;
+import it.uniroma3.siw.repository.RepositoryUtente;
+import it.uniroma3.siw.repository.RepositoryVideogioco;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import it.uniroma3.siw.model.Videogioco;
-import it.uniroma3.siw.repo.RepositoryVideogioco;
+import it.uniroma3.siw.repository.RepositoryVideogioco;
 
 import java.util.List;
 import java.util.Optional;

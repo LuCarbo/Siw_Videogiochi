@@ -5,7 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import it.uniroma3.siw.model.Utente;
 import it.uniroma3.siw.model.dto.RegistrazioneForm;
-import it.uniroma3.siw.repo.RepositoryUtente;
+import it.uniroma3.siw.repository.RepositoryUtente;
 
 import java.time.LocalDate;
 import java.util.List;

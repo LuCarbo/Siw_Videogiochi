@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import it.uniroma3.siw.model.Utente;
-import it.uniroma3.siw.repo.RepositoryUtente; // Assicurati che il nome coincida
+import it.uniroma3.siw.repository.RepositoryUtente;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {

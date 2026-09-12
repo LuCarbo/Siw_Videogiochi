@@ -12,9 +12,9 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import it.uniroma3.siw.model.Utente;
 import it.uniroma3.siw.model.Videogioco;
 import it.uniroma3.siw.model.VideogiocoLibreria;
-import it.uniroma3.siw.repo.RepositoryUtente;
-import it.uniroma3.siw.repo.RepositoryVideogioco;
-import it.uniroma3.siw.repo.RepositoryVideogiocoLibreria;
+import it.uniroma3.siw.repository.RepositoryUtente;
+import it.uniroma3.siw.repository.RepositoryVideogioco;
+import it.uniroma3.siw.repository.RepositoryVideogiocoLibreria;
 
 import java.time.LocalDate;
 import java.util.List;
