@@ -138,7 +138,7 @@ public class BenchmarkNPlusOneTest {
         System.out.printf("| 1. Standard (LAZY)        | %-17d | %14.3f ms |\n", countLazy, durationLazyMs);
         System.out.printf("| 2. Ottimizzato (JOIN FETCH)| %-17d | %14.3f ms |\n", countFetch, durationFetchMs);
         System.out.println("========================================================================");
-        System.out.println("NOTE ACCADEMICHE PER L'ORALE:");
+        System.out.println("RIEPILOGO CONFRONTO:");
         System.out.println("- La strategia 1 (LAZY) esegue inizialmente 1 query per l'entità radice.");
         System.out.println("  Al primo accesso alla collezione 'videogiocoLibreria', Hibernate emette una query SQL aggiuntiva.");
         System.out.println("- La strategia 2 (JOIN FETCH) utilizza la clausola JPQL 'LEFT JOIN FETCH v.videogiocoLibreria',");

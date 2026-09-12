@@ -15,7 +15,7 @@
 
     <main class="container">
 
-        <!-- Breadcrumb per navigazione rapida all'esame -->
+        <!-- Breadcrumb -->
         <nav class="breadcrumb">
             <a th:href="@{/admin/dashboard}">Pannello Admin</a>
             <span class="breadcrumb-sep">/</span>
@@ -79,10 +79,10 @@
                 </div>
             </div>
 
-            <!-- Box di Spiegazione Teorica per l'Esame Orale -->
+            <!-- Note Tecniche -->
             <div class="benchmark-explainer">
-                <strong style="color: var(--text-main); display: block; margin-bottom: 0.4rem;">Argomentazione per la discussione d'esame (Docente SIW):</strong>
-                La query JPQL custom implementata in <code>RepositoryVideogioco.findByIdWithVideogiocoLibreria</code> risolve alla radice il problema N+1 perché istruisce l'ORM Hibernate ad emettere un'unica query SQL con <code>LEFT OUTER JOIN</code>. Questo azzera i roundtrip di rete tra Spring Boot e PostgreSQL ed evita l'esaurimento prematuro delle connessioni nel connection pool (HikariCP).
+                <strong style="color: var(--text-main); display: block; margin-bottom: 0.4rem;">Note Tecniche sull'Ottimizzazione:</strong>
+                La query personalizzata con <code>LEFT JOIN FETCH</code> istruisce Hibernate ad emettere un'unica query SQL con <code>LEFT OUTER JOIN</code>, caricando i record associati in un solo roundtrip di rete tra Spring Boot e il database.
             </div>
         </div>
 

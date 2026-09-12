@@ -725,7 +725,7 @@ img {
   color: var(--text-main);
 }
 
-.exam-helper-box {
+.demo-box {
   margin-top: 1.5rem;
   padding: 1rem;
   background-color: var(--bg-surface-elevated);
@@ -736,7 +736,7 @@ img {
   line-height: 1.5;
 }
 
-.exam-helper-box code {
+.demo-box code {
   color: #89F336;
   background-color: var(--bg-input);
   padding: 0.15rem 0.35rem;

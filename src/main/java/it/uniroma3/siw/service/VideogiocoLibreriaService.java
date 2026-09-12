@@ -67,11 +67,8 @@ public class VideogiocoLibreriaService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Risolve il grave anti-pattern della transazione DB bloccata durante chiamate HTTP esterne:
-     * La chiamata di rete a RAWG viene eseguita OUTSIDE della transazione del database.
-     * Solo la fase di scrittura su PostgreSQL è protetta da @Transactional.
-     */
+    // Recupera i dettagli del gioco da RAWG prima di aprire la transazione sul database,
+    // in modo da non occupare la connessione al database durante la richiesta HTTP.
     public Videogioco aggiungiDaRawgALibreria(Long utenteId, Long rawgId) {
         if (utenteId == null || rawgId == null) {
             return null;
