@@ -31,7 +31,7 @@
         </div>
 
         <div class="form-card">
-            <form th:action="@{/admin/videogioco/nuovo}" th:object="${videogiocoForm}" method="post">
+            <form th:action="@{/admin/videogioco/nuovo}" th:object="${videogiocoForm}" method="post" enctype="multipart/form-data">
                 
                 <div class="form-group">
                     <label for="titolo" class="form-label">Titolo del Videogioco *</label>
@@ -46,9 +46,18 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="urlCopertina" class="form-label">URL Immagine di Copertina</label>
-                    <input type="url" id="urlCopertina" th:field="*{urlCopertina}" class="form-control" placeholder="https://... (URL immagine di copertina)" />
-                    <div th:if="${#fields.hasErrors('urlCopertina')}" th:errors="*{urlCopertina}" class="form-error"></div>
+                    <label for="immagineFile" class="form-label">Immagine di Copertina</label>
+                    <input type="file" id="immagineFile" th:field="*{immagineFile}" accept="image/png, image/jpeg, image/webp, image/gif" class="form-control" />
+                    <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.35rem;">
+                        Carica un file immagine dal computer (PNG, JPG, WEBP). L'immagine verrà convertita e memorizzata in formato Base64.
+                    </small>
+                    <div th:if="${#fields.hasErrors('immagineFile')}" th:errors="*{immagineFile}" class="form-error"></div>
+
+                    <!-- Anteprima live dell'immagine selezionata -->
+                    <div id="anteprimaContainer" style="margin-top: 0.85rem; display: none;">
+                        <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Anteprima copertina:</span>
+                        <img id="anteprimaImg" src="" alt="Anteprima copertina" style="max-height: 180px; max-width: 100%; border-radius: 6px; border: 1px solid var(--border-medium); object-fit: cover;" />
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -70,6 +79,25 @@
         </div>
 
     </main>
+
+    <script>
+        document.getElementById('immagineFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const container = document.getElementById('anteprimaContainer');
+            const img = document.getElementById('anteprimaImg');
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    img.src = evt.target.result;
+                    container.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                container.style.display = 'none';
+                img.src = '';
+            }
+        });
+    </script>
 
 </body>
 

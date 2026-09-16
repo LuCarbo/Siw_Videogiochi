@@ -5,6 +5,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.web.multipart.MultipartFile;
+
 public class VideogiocoForm {
 
     @NotBlank(message = "Il titolo è obbligatorio")
@@ -19,6 +22,9 @@ public class VideogiocoForm {
     private String descrizione;
 
     private String urlCopertina;
+
+    @JsonIgnore
+    private MultipartFile immagineFile;
 
     public VideogiocoForm() {
     }
@@ -53,5 +59,13 @@ public class VideogiocoForm {
 
     public void setUrlCopertina(String urlCopertina) {
         this.urlCopertina = urlCopertina;
+    }
+
+    public MultipartFile getImmagineFile() {
+        return immagineFile;
+    }
+
+    public void setImmagineFile(MultipartFile immagineFile) {
+        this.immagineFile = immagineFile;
     }
 }

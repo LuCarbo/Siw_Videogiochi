@@ -28,6 +28,7 @@ public class Videogioco {
     
     private Integer annoUscita;
     
+    @Column(columnDefinition = "TEXT")
     private String urlCopertina;
 
     @com.fasterxml.jackson.annotation.JsonIgnore

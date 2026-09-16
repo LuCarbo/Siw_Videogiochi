@@ -1,5 +1,8 @@
 package it.uniroma3.siw.controller;
 
+import java.io.IOException;
+import java.util.Base64;
+import org.springframework.web.multipart.MultipartFile;
 import it.uniroma3.siw.exception.DuplicateEntityException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -56,7 +59,25 @@ public class AdminController {
         videogioco.setTitolo(form.getTitolo().trim());
         videogioco.setAnnoUscita(form.getAnnoUscita());
         videogioco.setDescrizione(form.getDescrizione());
-        videogioco.setUrlCopertina(form.getUrlCopertina());
+
+        // Gestione immagine: conversione del file caricato in Base64 Data URI
+        MultipartFile file = form.getImmagineFile();
+        if (file != null && !file.isEmpty()) {
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                bindingResult.rejectValue("immagineFile", "error.immagineFile", "Il file caricato deve essere un'immagine valida (PNG, JPG, WEBP)");
+                return "admin/nuovoVideogioco";
+            }
+            try {
+                String base64Data = Base64.getEncoder().encodeToString(file.getBytes());
+                videogioco.setUrlCopertina("data:" + contentType + ";base64," + base64Data);
+            } catch (IOException e) {
+                bindingResult.rejectValue("immagineFile", "error.immagineFile", "Errore durante la lettura del file immagine");
+                return "admin/nuovoVideogioco";
+            }
+        } else if (form.getUrlCopertina() != null && !form.getUrlCopertina().isBlank()) {
+            videogioco.setUrlCopertina(form.getUrlCopertina().trim());
+        }
 
         try {
             videogioco = videogiocoService.save(videogioco);

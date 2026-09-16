@@ -46,14 +46,14 @@
             </form>
         </div>
 
-        <!-- React 18 & Babel Integration for Async Search -->
+        <!-- React 18 Integration for Async Search (Pure React 18 without Babel) -->
         <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
         <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
-        <script type="text/babel">
+        <script>
             /*<![CDATA[*/
             const { useState, useEffect, useRef } = React;
+            const e = React.createElement;
 
             function SearchBar() {
                 const [search, setSearch] = useState('');
@@ -102,109 +102,106 @@
                         });
                 };
 
-                return (
-                    <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
-                        <div style={{ position: 'relative' }}>
-                            <input
-                                type="text"
-                                placeholder="Cerca un videogioco..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                onFocus={() => { if (results.length > 0) setShowDropdown(true); }}
-                                style={{
-                                    width: '100%',
-                                    padding: '0.45rem 0.85rem',
-                                    paddingRight: loading ? '2rem' : '0.85rem',
-                                    borderRadius: '6px',
-                                    border: '1px solid var(--border-medium)',
-                                    fontSize: '0.88rem',
-                                    boxSizing: 'border-box',
-                                    backgroundColor: 'var(--bg-input)',
-                                    color: 'var(--text-main)',
-                                    outline: 'none'
-                                }}
-                            />
-                            {loading && (
-                                <span style={{
-                                    position: 'absolute',
-                                    right: '8px',
-                                    top: '50%',
-                                    transform: 'translateY(-50%)',
-                                    color: 'var(--text-muted)',
-                                    fontSize: '0.75rem'
-                                }}>
-                                    ...
-                                </span>
-                            )}
-                        </div>
-
-                        {showDropdown && results.length > 0 && (
-                            <div style={{
-                                position: 'absolute',
-                                top: 'calc(100% + 4px)',
-                                left: 0,
-                                right: 0,
-                                backgroundColor: 'var(--bg-surface)',
-                                borderRadius: '8px',
+                return e('div', { ref: containerRef, style: { position: 'relative', width: '100%' } },
+                    e('div', { style: { position: 'relative' } },
+                        e('input', {
+                            type: 'text',
+                            placeholder: 'Cerca un videogioco...',
+                            value: search,
+                            onChange: (event) => setSearch(event.target.value),
+                            onFocus: () => { if (results.length > 0) setShowDropdown(true); },
+                            style: {
+                                width: '100%',
+                                padding: '0.45rem 0.85rem',
+                                paddingRight: loading ? '2rem' : '0.85rem',
+                                borderRadius: '6px',
                                 border: '1px solid var(--border-medium)',
-                                boxShadow: 'var(--shadow-lg)',
-                                zIndex: 1000,
-                                maxHeight: '360px',
-                                overflowY: 'auto'
-                            }}>
-                                {results.map(gioco => (
-                                    <a
-                                        key={gioco.id}
-                                        href={`/rawg/gioco/${gioco.id}`}
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            padding: '8px 12px',
-                                            textDecoration: 'none',
-                                            color: 'var(--text-main)',
-                                            borderBottom: '1px solid var(--border-subtle)',
-                                            transition: 'background-color 0.15s ease'
-                                        }}
-                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-surface-elevated)'}
-                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                                    >
-                                        <img
-                                            src={gioco.background_image || '/images/placeholder.svg'}
-                                            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/images/placeholder.svg'; }}
-                                            alt=""
-                                            style={{
-                                                width: '38px',
-                                                height: '38px',
-                                                objectFit: 'cover',
-                                                borderRadius: '4px',
-                                                marginRight: '10px',
-                                                flexShrink: 0
-                                            }}
-                                        />
-                                        <div style={{ minWidth: 0, flex: 1 }}>
-                                            <div style={{
-                                                fontWeight: '600',
-                                                fontSize: '0.88rem',
-                                                whiteSpace: 'nowrap',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis'
-                                            }}>
-                                                {gioco.name}
-                                            </div>
-                                            <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-                                                {gioco.released ? gioco.released.substring(0, 4) : 'N/A'}
-                                            </div>
-                                        </div>
-                                    </a>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                                fontSize: '0.88rem',
+                                boxSizing: 'border-box',
+                                backgroundColor: 'var(--bg-input)',
+                                color: 'var(--text-main)',
+                                outline: 'none'
+                            }
+                        }),
+                        loading ? e('span', {
+                            style: {
+                                position: 'absolute',
+                                right: '8px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                color: 'var(--text-muted)',
+                                fontSize: '0.75rem'
+                            }
+                        }, '...') : null
+                    ),
+
+                    (showDropdown && results.length > 0) ? e('div', {
+                        style: {
+                            position: 'absolute',
+                            top: 'calc(100% + 4px)',
+                            left: 0,
+                            right: 0,
+                            backgroundColor: 'var(--bg-surface)',
+                            borderRadius: '8px',
+                            border: '1px solid var(--border-medium)',
+                            boxShadow: 'var(--shadow-lg)',
+                            zIndex: 1000,
+                            maxHeight: '360px',
+                            overflowY: 'auto'
+                        }
+                    },
+                        results.map(gioco => e('a', {
+                            key: gioco.id,
+                            href: `/rawg/gioco/${gioco.id}`,
+                            style: {
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '8px 12px',
+                                textDecoration: 'none',
+                                color: 'var(--text-main)',
+                                borderBottom: '1px solid var(--border-subtle)',
+                                transition: 'background-color 0.15s ease'
+                            },
+                            onMouseOver: (ev) => { ev.currentTarget.style.backgroundColor = 'var(--bg-surface-elevated)'; },
+                            onMouseOut: (ev) => { ev.currentTarget.style.backgroundColor = 'transparent'; }
+                        },
+                            e('img', {
+                                src: gioco.background_image || '/images/placeholder.svg',
+                                onError: (ev) => { ev.currentTarget.onerror = null; ev.currentTarget.src = '/images/placeholder.svg'; },
+                                alt: '',
+                                style: {
+                                    width: '38px',
+                                    height: '38px',
+                                    objectFit: 'cover',
+                                    borderRadius: '4px',
+                                    marginRight: '10px',
+                                    flexShrink: 0
+                                }
+                            }),
+                            e('div', { style: { minWidth: 0, flex: 1 } },
+                                e('div', {
+                                    style: {
+                                        fontWeight: '600',
+                                        fontSize: '0.88rem',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis'
+                                    }
+                                }, gioco.name),
+                                e('div', {
+                                    style: {
+                                        fontSize: '0.78rem',
+                                        color: '#94a3b8'
+                                    }
+                                }, gioco.released ? gioco.released.substring(0, 4) : 'N/A')
+                            )
+                        ))
+                    ) : null
                 );
             }
 
             const root = ReactDOM.createRoot(document.getElementById('react-search-bar'));
-            root.render(<SearchBar />);
+            root.render(e(SearchBar));
             /*]]>*/
         </script>
     </nav>
